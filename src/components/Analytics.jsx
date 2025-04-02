@@ -41,6 +41,9 @@ const MOCK_DATA = Array.from({ length: 50 }, (_, i) => ({
   potentialReach: Math.floor(Math.random() * 10000),
   engagement: Math.floor(Math.random() * 1000),
   earnedMediaValue: Math.floor(Math.random() * 1000),
+  likes : Math.floor(Math.random() * 1000),
+  shares : Math.floor(Math.random() * 1000),
+  comments : Math.floor(Math.random() * 1000),
 }));
 
 const MOCK_LINKEDIN_DATA = {
@@ -109,11 +112,11 @@ export default function Analytics() {
   const [startDate, endDate] = dateRange;
 
   const kpiData = {
-    labels: MOCK_DATA.slice(0, 10).map(item => item.date),
+    labels: MOCK_DATA.slice(0, 30).map(item => item.date),
     datasets: [
       {
         label: selectedKPI.label,
-        data: MOCK_DATA.slice(0, 10).map(item => item[selectedKPI.value]),
+        data: MOCK_DATA.slice(0, 30).map(item => item[selectedKPI.value]),
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.5)',
       },

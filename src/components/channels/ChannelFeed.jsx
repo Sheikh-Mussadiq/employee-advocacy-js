@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Heart, Share2, Bookmark, MoreHorizontal, Send, Image as ImageIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -87,26 +87,205 @@ What I love most about working here is [share your experience]"
   },
 ];
 
-const MOCK_SALES_POSTS = [/* existing sales posts */];
-const MOCK_MARKETING_POSTS = [/* existing marketing posts */];
-const MOCK_FEEDBACK_POSTS = [/* existing feedback posts */];
+const MOCK_SALES_POSTS = [
+  {
+    id: '1',
+    author: {
+      name: 'John Carter',
+      role: 'Sales Manager',
+      avatar: 'https://images.unsplash.com/photo-1593642532979-8c2608d2ab7d',
+      isModerator: false,
+    },
+    content: `🔥 Big Sale Alert! 🔥
+
+We are offering massive discounts on our entire product range!
+
+What's on sale?
+• 30% off on all electronics 🖥️
+• 20% off on home appliances 🏠
+• Buy one, get one free on selected accessories 🎁
+
+Hurry up, offer valid till stocks last! ⏳
+
+#Sale #Discount #ShopNow #LimitedTimeOffer`,
+    images: [
+      'https://images.unsplash.com/photo-1562184647-6bfc30c92e30'
+    ],
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    likes: 120,
+    comments: 25,
+    shares: 15,
+    hasLiked: false,
+    hasSaved: false,
+    tags: ['Sale', 'Discount', 'Electronics', 'ShopNow'],
+  },
+  {
+    id: '2',
+    author: {
+      name: 'Emily Green',
+      role: 'Account Executive',
+      avatar: 'https://images.unsplash.com/photo-1568605112-1e100fa4d8da',
+      isModerator: false,
+    },
+    content: `💥 Exclusive Offer for Our VIP Clients 💥
+
+As a token of appreciation for your continued support, we're offering a personalized 40% off on your next purchase!
+
+Use code: VIP40 at checkout. 
+
+#ExclusiveOffer #VIPDiscount #ThankYou #ShopNow`,
+    images: [
+      'https://images.unsplash.com/photo-1556740749-887f6717d7e4'
+    ],
+    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    likes: 80,
+    comments: 10,
+    shares: 5,
+    hasLiked: false,
+    hasSaved: false,
+    tags: ['VIP', 'Exclusive', 'Discount', 'ThankYou'],
+  }
+];
+
+const MOCK_MARKETING_POSTS = [
+  {
+    id: '1',
+    author: {
+      name: 'Olivia Davis',
+      role: 'Marketing Strategist',
+      avatar: 'https://images.unsplash.com/photo-1534351594725-0c7c59db0132',
+      isModerator: false,
+    },
+    content: `🚀 Boost Your Brand with Influencer Marketing 🚀
+
+In today's digital age, influencer marketing is the key to expanding your reach. Our team helps you connect with top influencers in your niche to create authentic campaigns that drive results.
+
+Let’s discuss how we can collaborate and elevate your brand!
+
+#InfluencerMarketing #BrandAwareness #DigitalMarketing #Growth`,
+    images: [
+      'https://images.unsplash.com/photo-1525094217465-6f3c7e1b6f3b'
+    ],
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    likes: 60,
+    comments: 8,
+    shares: 20,
+    hasLiked: false,
+    hasSaved: false,
+    tags: ['Marketing', 'Influencer', 'BrandGrowth', 'DigitalMarketing'],
+  },
+  {
+    id: '2',
+    author: {
+      name: 'Liam Carter',
+      role: 'Content Marketing Manager',
+      avatar: 'https://images.unsplash.com/photo-1589985221293-d4ea0bb015f6',
+      isModerator: false,
+    },
+    content: `📈 5 Tips for Effective Content Marketing 📈
+
+Want to create content that drives traffic and engages your audience? Here are 5 tips that will make your content strategy a success:
+1. Know your audience.
+2. Create value-driven content.
+3. Use storytelling.
+4. Optimize for SEO.
+5. Track and measure performance.
+
+Let’s create content that resonates!
+
+#ContentMarketing #SEO #Storytelling #Engagement #Growth`,
+    images: [
+      'https://images.unsplash.com/photo-1506378055360-650fa8bbad1c'
+    ],
+    timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    likes: 40,
+    comments: 15,
+    shares: 10,
+    hasLiked: false,
+    hasSaved: false,
+    tags: ['Marketing', 'ContentStrategy', 'Growth', 'SEO'],
+  }
+];
+
+const MOCK_FEEDBACK_POSTS = [
+  {
+    id: '1',
+    author: {
+      name: 'Sophia Adams',
+      role: 'Customer Service Manager',
+      avatar: 'https://images.unsplash.com/photo-1555685813-1c8f71b4ac22',
+      isModerator: false,
+    },
+    content: `📢 We Value Your Feedback! 📢
+
+We strive to improve and provide the best service possible. Please take a moment to share your recent experience with us:
+• What did you love about our service?
+• What can we improve?
+
+Your feedback helps us serve you better!
+
+#CustomerFeedback #Survey #Improvement #ThankYou`,
+    images: [
+      'https://images.unsplash.com/photo-1593642532979-8c2608d2ab7d'
+    ],
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    likes: 50,
+    comments: 30,
+    shares: 5,
+    hasLiked: false,
+    hasSaved: false,
+    tags: ['Feedback', 'CustomerService', 'Improvement', 'Survey'],
+  },
+  {
+    id: '2',
+    author: {
+      name: 'Benjamin Clark',
+      role: 'Product Manager',
+      avatar: 'https://images.unsplash.com/photo-1569984257-76ef0759b8bc',
+      isModerator: false,
+    },
+    content: `📝 We Want Your Opinion! 📝
+
+Our latest update is live! We'd love to hear your thoughts on the new features. 
+• What do you think of the new UI?
+• How is the performance after the update?
+
+Your opinions are vital in shaping the future of our product!
+
+#UserFeedback #ProductUpdate #CustomerVoice #TechCommunity`,
+    images: [
+      'https://images.unsplash.com/photo-1520749815167-8f5b29edc88a'
+    ],
+    timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+    likes: 70,
+    comments: 18,
+    shares: 10,
+    hasLiked: false,
+    hasSaved: false,
+    tags: ['Feedback', 'ProductUpdate', 'UserVoice', 'Tech'],
+  }
+];
+
 
 export default function ChannelFeed({ channelName }) {
-  const [posts, setPosts] = useState(() => {
-    switch (channelName) {
-      case 'sales':
-        return MOCK_SALES_POSTS;
-      case 'marketing':
-        return MOCK_MARKETING_POSTS;
-      case 'hr':
-        return MOCK_HR_POSTS;
-      case 'feedback':
-        return MOCK_FEEDBACK_POSTS;
-      default:
-        return [];
-    }
-  });
-  
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    setPosts(() => {
+      switch (channelName) {
+        case 'sales':
+          return MOCK_SALES_POSTS;
+        case 'marketing':
+          return MOCK_MARKETING_POSTS;
+        case 'hr':
+          return MOCK_HR_POSTS;
+        case 'feedback':
+          return MOCK_FEEDBACK_POSTS;
+        default:
+          return [];
+      }
+    })}
+, [channelName]);
+
   const [newPost, setNewPost] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
