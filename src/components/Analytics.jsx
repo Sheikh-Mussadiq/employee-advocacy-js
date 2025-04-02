@@ -16,7 +16,8 @@ import {
   Legend
 } from 'chart.js';
 import { format, subDays, subMonths, subYears } from 'date-fns';
-import * as XLSX from 'xlsx';
+// import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
@@ -173,20 +174,119 @@ export default function Analytics() {
     }],
   };
 
-  const exportToExcel = () => {
-    const wb = XLSX.utils.book_new();
-    const analyticsWS = XLSX.utils.json_to_sheet(MOCK_DATA);
-    XLSX.utils.book_append_sheet(wb, analyticsWS, 'Post Analytics');
-    const locationWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.locations);
-    XLSX.utils.book_append_sheet(wb, locationWS, 'Locations');
-    const industryWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.industries);
-    XLSX.utils.book_append_sheet(wb, industryWS, 'Industries');
-    const companySizeWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.companySizes);
-    XLSX.utils.book_append_sheet(wb, companySizeWS, 'Company Sizes');
-    const jobTitlesWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.jobTitles);
-    XLSX.utils.book_append_sheet(wb, jobTitlesWS, 'Job Titles');
-    XLSX.writeFile(wb, 'complete_analytics_report.xlsx');
-  };
+  // const exportToExcel = () => {
+  //   const wb = XLSX.utils.book_new();
+  //   const analyticsWS = XLSX.utils.json_to_sheet(MOCK_DATA);
+  //   XLSX.utils.book_append_sheet(wb, analyticsWS, 'Post Analytics');
+  //   const locationWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.locations);
+  //   XLSX.utils.book_append_sheet(wb, locationWS, 'Locations');
+  //   const industryWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.industries);
+  //   XLSX.utils.book_append_sheet(wb, industryWS, 'Industries');
+  //   const companySizeWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.companySizes);
+  //   XLSX.utils.book_append_sheet(wb, companySizeWS, 'Company Sizes');
+  //   const jobTitlesWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.jobTitles);
+  //   XLSX.utils.book_append_sheet(wb, jobTitlesWS, 'Job Titles');
+  //   XLSX.writeFile(wb, 'complete_analytics_report.xlsx');
+  // };
+
+  // const exportToExcel = async () => {
+  //   const workbook = new ExcelJS.Workbook();
+    
+  //   // Sheet 1: Post Analytics
+  //   const analyticsWS = workbook.addWorksheet('Post Analytics');
+  //   analyticsWS.addRows(MOCK_DATA);
+  
+  //   // Sheet 2: Locations
+  //   const locationWS = workbook.addWorksheet('Locations');
+  //   locationWS.addRows(MOCK_LINKEDIN_DATA.locations);
+  
+  //   // Repeat for other sheets (Industries, Company Sizes, Job Titles)...
+  //   // Sheet 3: Industries
+  //   const industryWS = workbook.addWorksheet('Industries');
+  //   industryWS.addRows(MOCK_LINKEDIN_DATA.industries);
+  //   // Sheet 4: Company Sizes
+  //   const companySizeWS = workbook.addWorksheet('Company Sizes');
+  //   companySizeWS.addRows(MOCK_LINKEDIN_DATA.companySizes);
+  //   // Sheet 5: Job Titles
+  //   const jobTitlesWS = workbook.addWorksheet('Job Titles');
+  //   jobTitlesWS.addRows(MOCK_LINKEDIN_DATA.jobTitles);
+  //   // Set column widths for better readability
+  //   // analyticsWS.columns.forEach(column => {
+  //   //   column.width = Math.max(10, column.width);
+  //   // })
+   
+  
+  //   // Save the file
+  //   const buffer = await workbook.xlsx.writeBuffer();
+  //   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  //   const link = document.createElement('a');
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = 'complete_analytics_report.xlsx';
+  //   link.click();
+  // };
+
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const createStyledSheet = (sheetName, data) => {
+        const sheet = workbook.addWorksheet(sheetName);
+
+        // Add header row with styling
+        const headers = Object.keys(data[0] || {});
+        const headerRow = sheet.addRow(headers);
+
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: '4F81BD' }, // Blue background
+            };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        // Add data rows
+        data.forEach(row => sheet.addRow(Object.values(row)));
+
+        // Auto-fit column widths
+        sheet.columns.forEach((col, i) => {
+            let maxLength = headers[i].length;
+            col.eachCell({ includeEmpty: true }, cell => {
+                maxLength = Math.max(maxLength, cell.value ? cell.value.toString().length : 0);
+            });
+            col.width = maxLength + 2;
+        });
+
+        // Apply borders
+        sheet.eachRow((row) => {
+            row.eachCell((cell) => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            });
+        });
+    };
+
+    // Create and style sheets
+    createStyledSheet('Post Analytics', MOCK_DATA);
+    createStyledSheet('Locations', MOCK_LINKEDIN_DATA.locations);
+    createStyledSheet('Industries', MOCK_LINKEDIN_DATA.industries);
+    createStyledSheet('Company Sizes', MOCK_LINKEDIN_DATA.companySizes);
+    createStyledSheet('Job Titles', MOCK_LINKEDIN_DATA.jobTitles);
+
+    // Save the file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Styled_Analytics_Report.xlsx';
+    link.click();
+
+    // Show a pop-up message after download
+    // setTimeout(() => alert('Excel file downloaded successfully! 🎉'), 500);
+};
 
   const exportToPDF = () => {
     const doc = new jsPDF();
