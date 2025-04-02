@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .prose img {
+    @apply rounded-lg;
+    @apply max-w-full;
+    @apply h-auto;
+  }
+}
