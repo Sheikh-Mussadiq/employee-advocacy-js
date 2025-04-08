@@ -2,26 +2,49 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const NotificationContext = createContext(undefined);
 
+const INITIAL_COUNTS = {
+  news: 5,
+  colleagues: 3,
+  'channels-sales': 4,
+  'channels-marketing': 3,
+  'channels-hr': 2,
+  'channels-feedback': 3,
+  leaderboard: 0,
+  analytics: 0,
+  settings: 0,
+  help: 0
+};
+
 export function NotificationProvider({ children }) {
-  const [unreadCounts, setUnreadCounts] = useState(() => {
-    const saved = localStorage.getItem('unreadCounts');
-    return saved ? JSON.parse(saved) : {
-      'news-company-news': 3,
-      'news-colleagues': 2,
-      'channels-sales': 1,
-      'channels-marketing': 2,
-      'channels-feedback': 1,
-    };
-  });
+  const [unreadCounts, setUnreadCounts] = useState(INITIAL_COUNTS);
 
-  useEffect(() => {
-    localStorage.setItem('unreadCounts', JSON.stringify(unreadCounts));
-  }, [unreadCounts]);
+  const markAsRead = (path) => {
+    if (!path) {
+      // Handle root path as news
+      setUnreadCounts(prev => ({
+        ...prev,
+        news: 0
+      }));
+      return;
+    }
 
-  const markAsRead = (section) => {
+    // Remove leading slash
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+    if (cleanPath.startsWith('channels')) {
+      // Handle channel routes (e.g., "channels/sales" -> "channels-sales")
+      const section = cleanPath.split('/')[1];
+      setUnreadCounts(prev => ({
+        ...prev,
+        [`channels-${section}`]: 0
+      }));
+      return;
+    }
+
+    // Handle regular routes
     setUnreadCounts(prev => ({
       ...prev,
-      [section]: 0,
+      [cleanPath]: 0,
     }));
   };
 
@@ -32,8 +55,19 @@ export function NotificationProvider({ children }) {
     }));
   };
 
+  const getChannelsCount = () => {
+    return Object.entries(unreadCounts)
+      .filter(([key]) => key.startsWith('channels-'))
+      .reduce((sum, [_, count]) => sum + count, 0);
+  };
+
   return (
-    <NotificationContext.Provider value={{ unreadCounts, markAsRead, addNewPost }}>
+    <NotificationContext.Provider value={{ 
+      unreadCounts, 
+      markAsRead, 
+      addNewPost,
+      getChannelsCount 
+    }}>
       {children}
     </NotificationContext.Provider>
   );
