@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share2, MoreHorizontal, ThumbsUp } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -80,74 +81,127 @@ export default function ColleaguesFeed() {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.1
+          }
+        }
+      }}
+      className="space-y-6"
+    >
       {posts.map(post => (
-        <article key={post.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="p-4">
+        <motion.article
+          key={post.id}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0 }
+          }}
+          className="card group hover:shadow-lg transition-all duration-300"
+        >
+          <div className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3">
-                <img
-                  src={post.author.avatar}
-                  alt={post.author.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <img
+                    src={post.author.avatar}
+                    alt={post.author.name}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
+                  />
+                </motion.div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">{post.author.name}</h3>
-                  <p className="text-sm text-gray-500">{post.author.title}</p>
-                  <p className="text-xs text-gray-400 mt-1">{formatTimestamp(post.timestamp)}</p>
+                  <h3 className="font-semibold text-design-black group-hover:text-button-primary-cta transition-colors">
+                    {post.author.name}
+                  </h3>
+                  <p className="text-sm text-design-primaryGrey">{post.author.title}</p>
+                  <p className="text-xs text-design-primaryGrey mt-1">{formatTimestamp(post.timestamp)}</p>
                 </div>
               </div>
-              <button className="text-gray-400 hover:text-gray-600">
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 15 }}
+                whileTap={{ scale: 0.9 }}
+                className="text-design-primaryGrey hover:text-button-primary-cta transition-colors"
+              >
                 <MoreHorizontal className="w-5 h-5" />
-              </button>
+              </motion.button>
             </div>
 
-            <div className="mt-4">
-              <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mt-6"
+            >
+              <p className="text-design-black whitespace-pre-wrap leading-relaxed">{post.content}</p>
               {post.image && (
-                <img
+                <motion.img
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
                   src={post.image}
                   alt="Post attachment"
-                  className="mt-4 rounded-lg w-full object-cover max-h-96"
+                  className="mt-6 rounded-xl w-full object-cover max-h-96 shadow-lg"
                 />
               )}
-            </div>
+            </motion.div>
 
-            <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-6 flex items-center justify-between text-sm text-design-primaryGrey"
+            >
               <div className="flex items-center space-x-1">
-                <div className="bg-blue-500 rounded-full p-1">
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="bg-button-primary-cta rounded-full p-1"
+                >
                   <ThumbsUp className="w-3 h-3 text-white" />
-                </div>
+                </motion.div>
                 <span>{post.likes}</span>
               </div>
               <div className="flex space-x-4">
                 <span>{post.comments} comments</span>
                 <span>{post.shares} shares</span>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="mt-4 pt-4 border-t flex justify-between">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-6 pt-4 border-t border-design-greyOutlines flex justify-between"
+            >
               <button
                 onClick={() => handleLike(post.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-50 ${
-                  post.hasLiked ? 'text-blue-500' : 'text-gray-600'
+                className={`btn-secondary flex items-center space-x-2 ${
+                  post.hasLiked ? 'text-button-primary-cta' : 'text-design-primaryGrey'
                 }`}
               >
                 <Heart className={`w-5 h-5 ${post.hasLiked ? 'fill-current' : ''}`} />
                 <span>Like</span>
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-50 text-gray-600">
+              <button className="btn-secondary flex items-center space-x-2">
                 <MessageCircle className="w-5 h-5" />
                 <span>Comment</span>
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-50 text-gray-600">
+              <button className="btn-secondary flex items-center space-x-2">
                 <Share2 className="w-5 h-5" />
                 <span>Share</span>
               </button>
-            </div>
+            </motion.div>
           </div>
-        </article>
+        </motion.article>
       ))}
-    </div>
+    </motion.div>
   );
 }

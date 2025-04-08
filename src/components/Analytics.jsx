@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import CountUp from 'react-countup';
 import { ArrowUpDown, Download, FileSpreadsheet } from 'lucide-react';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -16,7 +18,6 @@ import {
   Legend
 } from 'chart.js';
 import { format, subDays, subMonths, subYears } from 'date-fns';
-// import * as XLSX from 'xlsx';
 import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -177,57 +178,6 @@ export default function Analytics() {
     }],
   };
 
-  // const exportToExcel = () => {
-  //   const wb = XLSX.utils.book_new();
-  //   const analyticsWS = XLSX.utils.json_to_sheet(MOCK_DATA);
-  //   XLSX.utils.book_append_sheet(wb, analyticsWS, 'Post Analytics');
-  //   const locationWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.locations);
-  //   XLSX.utils.book_append_sheet(wb, locationWS, 'Locations');
-  //   const industryWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.industries);
-  //   XLSX.utils.book_append_sheet(wb, industryWS, 'Industries');
-  //   const companySizeWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.companySizes);
-  //   XLSX.utils.book_append_sheet(wb, companySizeWS, 'Company Sizes');
-  //   const jobTitlesWS = XLSX.utils.json_to_sheet(MOCK_LINKEDIN_DATA.jobTitles);
-  //   XLSX.utils.book_append_sheet(wb, jobTitlesWS, 'Job Titles');
-  //   XLSX.writeFile(wb, 'complete_analytics_report.xlsx');
-  // };
-
-  // const exportToExcel = async () => {
-  //   const workbook = new ExcelJS.Workbook();
-    
-  //   // Sheet 1: Post Analytics
-  //   const analyticsWS = workbook.addWorksheet('Post Analytics');
-  //   analyticsWS.addRows(MOCK_DATA);
-  
-  //   // Sheet 2: Locations
-  //   const locationWS = workbook.addWorksheet('Locations');
-  //   locationWS.addRows(MOCK_LINKEDIN_DATA.locations);
-  
-  //   // Repeat for other sheets (Industries, Company Sizes, Job Titles)...
-  //   // Sheet 3: Industries
-  //   const industryWS = workbook.addWorksheet('Industries');
-  //   industryWS.addRows(MOCK_LINKEDIN_DATA.industries);
-  //   // Sheet 4: Company Sizes
-  //   const companySizeWS = workbook.addWorksheet('Company Sizes');
-  //   companySizeWS.addRows(MOCK_LINKEDIN_DATA.companySizes);
-  //   // Sheet 5: Job Titles
-  //   const jobTitlesWS = workbook.addWorksheet('Job Titles');
-  //   jobTitlesWS.addRows(MOCK_LINKEDIN_DATA.jobTitles);
-  //   // Set column widths for better readability
-  //   // analyticsWS.columns.forEach(column => {
-  //   //   column.width = Math.max(10, column.width);
-  //   // })
-   
-  
-  //   // Save the file
-  //   const buffer = await workbook.xlsx.writeBuffer();
-  //   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  //   const link = document.createElement('a');
-  //   link.href = URL.createObjectURL(blob);
-  //   link.download = 'complete_analytics_report.xlsx';
-  //   link.click();
-  // };
-
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const createStyledSheet = (sheetName, data) => {
@@ -286,9 +236,6 @@ export default function Analytics() {
     link.href = URL.createObjectURL(blob);
     link.download = 'Styled_Analytics_Report.xlsx';
     link.click();
-
-    // Show a pop-up message after download
-    // setTimeout(() => alert('Excel file downloaded successfully! 🎉'), 500);
 };
 
   const exportToPDF = () => {
@@ -356,85 +303,128 @@ export default function Analytics() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics</h2>
-          <p className="text-gray-600 mt-1">Employee Advocacy Performance</p>
-        </div>
-        <div className="flex gap-4">
-          <button
-            onClick={exportToExcel}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-8"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-6"
+      >
+        <h2 className="text-2xl font-bold text-design-black">Analytics</h2>
+        <p className="text-design-primaryGrey mt-1">Employee Advocacy Performance</p>
+      </motion.div>
+
+      <motion.div 
+        className="flex gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <button
+          onClick={exportToExcel}
+          className="btn-secondary flex items-center gap-2"
+        >
+          <FileSpreadsheet className="w-5 h-5" />
+          Export to Excel
+        </button>
+        <button
+          onClick={exportToPDF}
+          className="btn-secondary flex items-center gap-2"
+        >
+          <Download className="w-5 h-5" />
+          Export to PDF
+        </button>
+      </motion.div>
+
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: {
+            transition: {
+              staggerChildren: 0.1
+            }
+          }
+        }}
+      >
+        {[
+          {
+            title: 'Earned Media Value',
+            value: '$12.3K',
+            change: '+15%',
+            trend: 'up',
+            rawValue: 12300
+          },
+          {
+            title: 'Potential Reach',
+            value: '45.2K',
+            change: '+8%',
+            trend: 'up',
+            rawValue: 45200
+          },
+          {
+            title: 'Engagement Rate',
+            value: '3.8%',
+            change: '-2%',
+            trend: 'down',
+            rawValue: 3.8
+          },
+          {
+            title: 'Shares',
+            value: '856',
+            change: '+15%',
+            trend: 'up',
+            rawValue: 856
+          },
+          {
+            title: 'Likes',
+            value: '2.1K',
+            change: '+12%',
+            trend: 'up',
+            rawValue: 2100
+          },
+          {
+            title: 'Comments',
+            value: '432',
+            change: '+8%',
+            trend: 'up',
+            rawValue: 432
+          }
+        ].map(({ title, value, change, trend, rawValue }) => (
+          <motion.div
+            key={title}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            className="card p-6 hover:shadow-lg transition-all duration-300"
           >
-            <FileSpreadsheet className="w-5 h-5" />
-            Export to Excel
-          </button>
-          <button
-            onClick={exportToPDF}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            <Download className="w-5 h-5" />
-            Export to PDF
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Earned Media Value</h3>
-            <ArrowUpDown className="w-5 h-5 text-green-500" />
-          </div>
-          <p className="text-3xl font-bold mt-2">$12.3K</p>
-          <p className="text-sm text-green-600 mt-1">+15% from last month</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Potential Reach</h3>
-            <ArrowUpDown className="w-5 h-5 text-green-500" />
-          </div>
-          <p className="text-3xl font-bold mt-2">45.2K</p>
-          <p className="text-sm text-green-600 mt-1">+8% from last month</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Engagement Rate</h3>
-            <ArrowUpDown className="w-5 h-5 text-red-500" />
-          </div>
-          <p className="text-3xl font-bold mt-2">3.8%</p>
-          <p className="text-sm text-red-600 mt-1">-2% from last month</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Shares</h3>
-            <ArrowUpDown className="w-5 h-5 text-green-500" />
-          </div>
-          <p className="text-3xl font-bold mt-2">856</p>
-          <p className="text-sm text-green-600 mt-1">+15% from last month</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Likes</h3>
-            <ArrowUpDown className="w-5 h-5 text-green-500" />
-          </div>
-          <p className="text-3xl font-bold mt-2">2.1K</p>
-          <p className="text-sm text-green-600 mt-1">+12% from last month</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Comments</h3>
-            <ArrowUpDown className="w-5 h-5 text-green-500" />
-          </div>
-          <p className="text-3xl font-bold mt-2">432</p>
-          <p className="text-sm text-green-600 mt-1">+8% from last month</p>
-        </div>
-      </div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-design-black">{title}</h3>
+              <ArrowUpDown className={`w-5 h-5 ${
+                trend === 'up' ? 'text-semantic-success' : 'text-semantic-error'
+              }`} />
+            </div>
+            <p className="text-3xl font-bold mt-2 text-design-black">
+              <CountUp
+                end={rawValue}
+                duration={2}
+                separator=","
+                decimals={title === 'Engagement Rate' ? 1 : 0}
+                suffix={title === 'Engagement Rate' ? '%' : ''}
+                prefix={title === 'Earned Media Value' ? '$' : ''}
+              />
+            </p>
+            <p className={`text-sm mt-1 ${
+              trend === 'up' ? 'text-semantic-success' : 'text-semantic-error'
+            }`}>{change} from last month</p>
+          </motion.div>
+        ))}
+      </motion.div>
 
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="flex flex-wrap gap-4 mb-6">
@@ -605,7 +595,6 @@ export default function Analytics() {
           </div>
         </div>
       </div>
-    </div>
-   
+    </motion.div>
   );
 }

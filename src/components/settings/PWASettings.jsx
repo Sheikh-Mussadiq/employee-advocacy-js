@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Download, Smartphone } from 'lucide-react';
 
 export default function PWASettings() {
   const handleInstallClick = () => {
@@ -10,19 +12,43 @@ export default function PWASettings() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">
-        Add to Home Screen
-      </h3>
-      <p className="text-sm text-gray-600 mb-4">
-        Install SocialHub as a progressive web app on your device:
-      </p>
-      <button
-        onClick={handleInstallClick}
-        className="inline-block px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-      >
-        Add to Home Screen
-      </button>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="card"
+    >
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+              className="p-2 bg-button-tertiary-fill rounded-lg"
+            >
+              <Smartphone className="w-5 h-5 text-button-primary-cta" />
+            </motion.div>
+            <h3 className="text-lg font-medium text-design-black">
+              Add to Home Screen
+            </h3>
+          </div>
+        </div>
+
+        <p className="text-design-primaryGrey">
+          Install SocialHub as a progressive web app on your device for quick access and a native app-like experience.
+        </p>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleInstallClick}
+          className="btn-secondary w-full flex items-center justify-center gap-2"
+        >
+          <Download className="w-4 h-4" />
+          Add to Home Screen
+        </motion.button>
+      </div>
+    </motion.div>
   );
 }

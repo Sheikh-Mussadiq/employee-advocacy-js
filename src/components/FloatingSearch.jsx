@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight, History, Trash2 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
 
-export default function FloatingSearch({ setActiveTab }) {
+export default function FloatingSearch({ navigate }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -93,7 +94,12 @@ export default function FloatingSearch({ setActiveTab }) {
 
   const handleResultClick = (result) => {
     if (result.navigationPath) {
-      setActiveTab(result.navigationPath);
+      if (result.navigationPath.startsWith('channels-')) {
+        const section = result.navigationPath.replace('channels-', '');
+        navigate(`/channels/${section}`);
+      } else {
+        navigate(`/${result.navigationPath}`);
+      }
       setIsOpen(false);
       setQuery('');
       setResults([]);
@@ -101,9 +107,23 @@ export default function FloatingSearch({ setActiveTab }) {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50" ref={searchRef}>
+    <motion.div 
+      className="fixed bottom-4 right-4 z-50"
+      ref={searchRef}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+    >
+      <AnimatePresence mode="wait">
       {isOpen ? (
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 md:mx-0 overflow-hidden">
+        <motion.div
+          key="search-panel"
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="card w-full max-w-lg mx-4 md:mx-0 overflow-hidden shadow-2xl"
+        >
           <div className="p-4 border-b">
             <div className="flex items-center gap-3">
               <Search className="w-5 h-5 text-gray-400" />
@@ -113,11 +133,11 @@ export default function FloatingSearch({ setActiveTab }) {
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Search news, channels, and colleagues..."
-                className="flex-1 outline-none text-gray-800 placeholder-gray-400"
+                className="flex-1 outline-none text-design-black placeholder-design-primaryGrey bg-transparent"
               />
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded-full"
+                className="p-1 hover:bg-design-greyBG rounded-full transition-colors"
               >
                 <X className="w-5 h-5 text-gray-400" />
               </button>
@@ -126,7 +146,12 @@ export default function FloatingSearch({ setActiveTab }) {
 
           <div className="max-h-[60vh] overflow-y-auto">
             {query === '' && recentSearches.length > 0 && (
-              <div className="p-4 border-b">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="p-4 border-b border-design-greyOutlines"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <History className="w-4 h-4" />
@@ -134,7 +159,7 @@ export default function FloatingSearch({ setActiveTab }) {
                   </div>
                   <button
                     onClick={clearRecentSearches}
-                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                    className="btn-ghost text-sm flex items-center gap-1"
                   >
                     <Trash2 className="w-4 h-4" />
                     Clear
@@ -142,65 +167,79 @@ export default function FloatingSearch({ setActiveTab }) {
                 </div>
                 <div className="space-y-2">
                   {recentSearches.map((search, index) => (
-                    <button
+                    <motion.button
                       key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileHover={{ x: 5 }}
                       onClick={() => useRecentSearch(search)}
-                      className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-between group"
+                      className="w-full text-left px-4 py-2 rounded-lg hover:bg-design-greyBG flex items-center justify-between group transition-colors"
                     >
-                      <span className="text-gray-700">{search}</span>
+                      <span className="text-design-black group-hover:text-button-primary-cta transition-colors">{search}</span>
                       <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {results.length > 0 ? (
               <div className="divide-y">
                 {results.map((result) => (
-                  <button
+                  <motion.button
                     key={result.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ x: 5 }}
                     onClick={() => handleResultClick(result)}
-                    className="w-full text-left p-4 hover:bg-gray-50"
+                    className="w-full text-left p-4 hover:bg-design-greyBG group transition-colors"
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-medium text-gray-900">{result.title}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{result.description}</p>
+                        <h3 className="font-medium text-design-black group-hover:text-button-primary-cta transition-colors">{result.title}</h3>
+                        <p className="text-sm text-design-primaryGrey mt-1">{result.description}</p>
                         <div className="flex items-center gap-2 mt-2">
                           {result.author && (
-                            <span className="text-xs text-gray-400">{result.author}</span>
+                            <span className="text-xs text-design-primaryGrey">{result.author}</span>
                           )}
                           {result.date && (
                             <>
-                              <span className="text-xs text-gray-300">•</span>
-                              <span className="text-xs text-gray-400">{result.date}</span>
+                              <span className="text-xs text-design-primaryGrey opacity-50">•</span>
+                              <span className="text-xs text-design-primaryGrey">{result.date}</span>
                             </>
                           )}
                         </div>
                       </div>
-                      <span className="text-xs font-medium text-gray-400 capitalize">
+                      <span className="text-xs font-medium text-button-primary-cta bg-button-tertiary-fill px-2 py-1 rounded-full capitalize">
                         {result.type}
                       </span>
                     </div>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             ) : query !== '' && (
-              <div className="p-8 text-center text-gray-500">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="p-8 text-center text-design-primaryGrey"
+              >
                 No results found for "{query}"
-              </div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(true)}
-          className="bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+          className="bg-button-primary-cta text-white p-3 rounded-full shadow-lg hover:bg-button-primary-hover transition-all duration-200"
         >
           <Search className="w-6 h-6" />
-        </button>
+        </motion.button>
       )}
-    </div>
+      </AnimatePresence>
+    </motion.div>
   );
 }

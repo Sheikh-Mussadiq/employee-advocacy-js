@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { format, isValid, parseISO } from 'date-fns';
 import { Wand2, Copy, ExternalLink } from 'lucide-react';
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  apiKey: "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",
   dangerouslyAllowBrowser: true
 });
 
@@ -86,22 +87,32 @@ export default function FeedItem({ item }) {
     : item.title;
 
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
+    <motion.article
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      className="card group hover:shadow-lg transition-all duration-300"
+    >
       <div className="p-4">
         <div className="flex justify-between items-start mb-2">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <motion.h2 
+            className="text-xl font-semibold text-design-black group-hover:text-button-primary-cta transition-colors duration-200"
+          >
             <a href={item.link} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
               {item.title}
             </a>
-          </h2>
-          <a
+          </motion.h2>
+          <motion.a
+            whileHover={{ scale: 1.1, rotate: 15 }}
+            whileTap={{ scale: 0.9 }}
             href={item.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-500 hover:text-blue-600"
+            className="text-design-primaryGrey hover:text-button-primary-cta transition-colors duration-200"
           >
             <ExternalLink className="w-5 h-5" />
-          </a>
+          </motion.a>
         </div>
         
         <div className="flex items-center text-sm text-gray-500 mb-4">
@@ -123,27 +134,35 @@ export default function FeedItem({ item }) {
 
         <div className="mt-6 space-y-4">
           <div className="flex gap-2">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => generateCaption('linkedin')}
               disabled={isGenerating}
-              className="inline-flex items-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary"
             >
               <Wand2 className="w-4 h-4 mr-2" />
               {isGenerating ? 'Generating...' : 'Generate AI text for this post'}
-            </button>
+            </motion.button>
             {activeCaption && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={copyToClipboard}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="btn-secondary"
               >
                 <Copy className="w-4 h-4 mr-2" />
                 {copySuccess ? 'Copied!' : 'Copy'}
-              </button>
+              </motion.button>
             )}
           </div>
 
           {activeCaption && (
-            <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-3 p-4 bg-button-tertiary-fill rounded-lg border border-button-primary-cta/10"
+            >
               <div>
                 <label className="block text-sm font-medium text-blue-800 mb-1">
                   Caption
@@ -151,7 +170,7 @@ export default function FeedItem({ item }) {
                 <textarea
                   value={editedCaption}
                   onChange={(e) => setEditedCaption(e.target.value)}
-                  className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="input"
                   rows={4}
                 />
               </div>
@@ -164,10 +183,10 @@ export default function FeedItem({ item }) {
                   value={editedHashtags.join(' ')}
                   onChange={handleHashtagChange}
                   placeholder="Add hashtags separated by spaces"
-                  className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="input"
                 />
               </div>
-            </div>
+            </motion.div>
           )}
           
           <div 
@@ -182,6 +201,6 @@ export default function FeedItem({ item }) {
           ></div>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
