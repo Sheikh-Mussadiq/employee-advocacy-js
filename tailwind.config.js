@@ -89,6 +89,27 @@ export default {
         "2xl": ["24px", { lineHeight: "32px" }],
         "3xl": ["30px", { lineHeight: "36px" }],
       },
+      backgroundImage: {
+        "gradient-primary": "linear-gradient(135deg, #6D28D9 0%, #4C1D95 100%)",
+        "gradient-secondary":
+          "linear-gradient(135deg, #F0EEFF 0%, #DDD6FE 100%)",
+        "gradient-success": "linear-gradient(135deg, #22C55E 0%, #10B981 100%)",
+        "gradient-gold": "linear-gradient(135deg, #FDB70A 0%, #FBBF24 100%)",
+        "gradient-silver": "linear-gradient(135deg, #94A3B8 0%, #CBD5E1 100%)",
+        "gradient-bronze": "linear-gradient(135deg, #C2410C 0%, #EA580C 100%)",
+        "gradient-card": "linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%)",
+        "gradient-hover": "linear-gradient(135deg, #4C1D95 0%, #6D28D9 100%)",
+        "gradient-glow":
+          "radial-gradient(circle at center, rgba(109, 40, 217, 0.15) 0%, transparent 70%)",
+        "gradient-gold-shine":
+          "linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%)",
+        "gradient-silver-shine":
+          "linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 50%, #C0C0C0 100%)",
+        "gradient-bronze-shine":
+          "linear-gradient(135deg, #CD7F32 0%, #B8860B 50%, #CD7F32 100%)",
+        shimmer:
+          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+      },
     },
   },
   plugins: [],

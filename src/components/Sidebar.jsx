@@ -10,8 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
   Hash,
-  MessageCircle,
-  HelpCircle,
+  MessageCircle, 
   Briefcase
 } from 'lucide-react';
 import { useNotifications } from '../context/NotificationContext';
@@ -63,14 +62,7 @@ export default function Sidebar({ isOpen, onClose, onToggle, navigate, currentPa
     { 
       id: 'analytics', 
       icon: BarChart, 
-      label: 'Analytics',
-      hasSubmenu: false,
-      unreadCount: 0
-    },
-    { 
-      id: 'settings', 
-      icon: Settings, 
-      label: 'Settings',
+      label: 'Analytics', 
       hasSubmenu: false,
       unreadCount: 0
     }
@@ -89,7 +81,7 @@ export default function Sidebar({ isOpen, onClose, onToggle, navigate, currentPa
   const NotificationBubble = ({ count }) => {
     if (count === 0) return null;
     return (
-      <span className="bg-blue-100 text-blue-600 text-[10px] px-1.5 py-px rounded-full min-w-[16px] h-4 inline-flex items-center justify-center">
+      <span className="bg-button-tertiary-fill text-button-primary-cta text-[10px] px-1.5 py-px rounded-full min-w-[16px] h-4 inline-flex items-center justify-center">
         {count}
       </span>
     );
@@ -112,16 +104,7 @@ export default function Sidebar({ isOpen, onClose, onToggle, navigate, currentPa
         <div className="sticky top-0 bg-design-white/80 backdrop-blur-sm border-b border-design-greyOutlines p-6">
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-design-black">SocialHub</h1>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-sm text-design-primaryGrey">Employee Advocacy Platform</p>
-              <button
-                onClick={() => handleTabChange('help')}
-                className="text-sm text-button-primary-cta hover:text-button-primary-hover font-medium flex items-center gap-1 transition-colors"
-              >
-                <HelpCircle className="w-4 h-4" />
-                Help
-              </button>
-            </div>
+            <p className="text-sm text-design-primaryGrey mt-1">Employee Advocacy Platform</p>
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -156,8 +139,8 @@ export default function Sidebar({ isOpen, onClose, onToggle, navigate, currentPa
                         onClick={() => handleTabChange(`${id}-${subId}`)}
                         className={`w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors ${
                           currentPath === `/channels/${subId}`
-                            ? 'bg-blue-50 text-blue-600 ring-1 ring-blue-100'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                            ? 'bg-button-tertiary-fill text-button-primary-cta ring-1 ring-button-primary-cta/10'
+                            : 'text-design-primaryGrey hover:bg-design-greyBG hover:text-design-black'
                         }`}
                       >
                         <div className="flex items-center space-x-3">

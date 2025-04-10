@@ -2,15 +2,23 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, HelpCircle, Search, User, Menu, X } from 'lucide-react';
 import NotificationsPanel from './notifications/NotificationsPanel';
+import UserProfileSettings from './settings/UserProfileSettings';
+import { useNavigate } from 'react-router-dom';
 
 export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notificationsRef = useRef(null);
+  const profileRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
         setIsNotificationsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
       }
     };
 
@@ -22,7 +30,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
     <motion.div 
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full bg-white/80 backdrop-blur-sm border-b border-design-greyOutlines"
+      className="w-full bg-design-white/80 backdrop-blur-sm border-b border-design-greyOutlines"
     >
       <div className="px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -43,7 +51,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-10 pr-4 py-2 bg-design-greyBG border-0 rounded-lg focus:ring-2 focus:ring-button-primary-cta"
+              className="w-full pl-10 pr-4 py-2 bg-design-greyBG border-0 rounded-lg focus:ring-2 focus:ring-button-primary-cta focus:outline-none"
             />
           </div>
         </div>
@@ -67,15 +75,16 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/help')}
             className="p-2 hover:bg-design-greyBG rounded-lg transition-colors"
           >
             <HelpCircle className="w-5 h-5 text-design-primaryGrey" />
           </motion.button>
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 p-2 hover:bg-design-greyBG rounded-lg transition-colors"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className="flex items-center gap-2 p-2 hover:bg-design-greyBG rounded-lg transition-colors relative"
+            ref={profileRef}
           >
             <img
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
@@ -83,6 +92,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
               className="w-8 h-8 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
             />
             <span className="text-sm font-medium text-design-black">John Doe</span>
+            {isProfileOpen && <UserProfileSettings onClose={() => setIsProfileOpen(false)} />}
           </motion.button>
         </div>
       </div>
