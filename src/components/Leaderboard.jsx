@@ -300,20 +300,58 @@ export default function Leaderboard() {
       </motion.div>
 
       {/* Podium Section */}
-      <motion.div
-        className="mb-8 relative"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div className="bg-indigo-100 rounded-3xl overflow-hidden relative">
+      <motion.div className="mb-8 relative">
+        <div className="bg-indigo-300 rounded-t-3xl overflow-hidden relative">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-indigo-200 to-indigo-50 opacity-70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-indigo-600 via-indigo-400 to-indigo-300 opacity-90" />
+
+          {/* Enhanced curved bottom overlay with smooth edges */}
+          <div className="absolute -bottom-12 left-0 right-0 h-32">
+            {/* Main curve */}
+            <div
+              className="absolute inset-0 bg-white transform -translate-y-8"
+              style={{
+                borderTopLeftRadius: "120% 100%",
+                borderTopRightRadius: "120% 100%",
+                maskImage:
+                  "linear-gradient(to bottom, transparent 0%, black 50%)",
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, transparent 0%, black 50%)",
+              }}
+            />
+            {/* Side smoothing layers */}
+            <div className="absolute inset-0 transform -translate-y-8">
+              <div
+                className="absolute left-0 w-1/4 h-full bg-white opacity-60"
+                style={{
+                  borderTopRightRadius: "100% 100%",
+                  transform: "translateX(-20%) translateY(10%)",
+                }}
+              />
+              <div
+                className="absolute right-0 w-1/4 h-full bg-white opacity-60"
+                style={{
+                  borderTopLeftRadius: "100% 100%",
+                  transform: "translateX(20%) translateY(10%)",
+                }}
+              />
+            </div>
+            {/* Blur overlay for smoother transitions */}
+            <div
+              className="absolute inset-x-0 top-0 h-16 bg-white/10 backdrop-blur-[2px]"
+              style={{
+                borderTopLeftRadius: "120% 100%",
+                borderTopRightRadius: "120% 100%",
+              }}
+            />
+          </div>
 
           <div className="flex items-end justify-center relative z-10 h-[350px]">
             {/* Second Place - Left */}
             <div className="flex flex-col items-center h-full pt-16 px-6 pb-0 w-1/3 bg-white/20">
-              <div className="text-[100px] font-bold text-white/50 absolute top-0 left-8 opacity-80">2</div>
+              <div className="text-[100px] font-bold text-white/50 absolute top-0 left-8 opacity-80">
+                2
+              </div>
               <div className="flex flex-col items-center justify-end h-full w-full">
                 <img
                   src={MOCK_USERS[1]?.avatar}
@@ -331,14 +369,14 @@ export default function Leaderboard() {
                 <div className="text-blue-700 font-bold mb-1">
                   Earn {MOCK_USERS[1]?.points.toLocaleString()} Points
                 </div>
-                <div className="bg-blue-100 h-[120px] w-full rounded-t-xl flex items-end justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-blue-200 to-blue-100 opacity-50" />
+                <div className="bg-blue-300 h-[120px] w-full rounded-t-xl flex items-end justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-600 via-blue-400 to-blue-300 opacity-90" />
                 </div>
               </div>
             </div>
 
             {/* First Place - Center */}
-            <div className="flex flex-col items-center h-full pt-8 px-8 pb-0 w-1/3 bg-yellow-50/50 z-20">
+            <div className="flex flex-col items-center h-full pt-8 px-8 pb-0 w-1/3 bg-yellow-200/70 z-20">
               <div className="text-[120px] font-bold text-yellow-500/30 absolute top-0 left-1/2 -translate-x-1/2 opacity-80">
                 1
               </div>
@@ -359,14 +397,14 @@ export default function Leaderboard() {
                 <div className="text-yellow-700 font-bold mb-1">
                   Earn {MOCK_USERS[0]?.points.toLocaleString()} Points
                 </div>
-                <div className="bg-yellow-100 h-[160px] w-full rounded-t-xl flex items-end justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-yellow-200 to-yellow-100 opacity-50" />
+                <div className="bg-yellow-300 h-[160px] w-full rounded-t-xl flex items-end justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-yellow-600 via-yellow-400 to-yellow-300 opacity-90" />
                 </div>
               </div>
             </div>
 
             {/* Third Place - Right */}
-            <div className="flex flex-col items-center h-full pt-24 px-6 pb-0 w-1/3 bg-pink-50/30">
+            <div className="flex flex-col items-center h-full pt-24 px-6 pb-0 w-1/3 bg-purple-200/50">
               <div className="text-[100px] font-bold text-pink-500/30 absolute top-0 right-8 opacity-80">
                 3
               </div>
@@ -387,23 +425,10 @@ export default function Leaderboard() {
                 <div className="text-purple-700 font-bold mb-1">
                   Earn {MOCK_USERS[2]?.points.toLocaleString()} Points
                 </div>
-                <div className="bg-purple-100 h-[100px] w-full rounded-t-xl flex items-end justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-200 to-purple-100 opacity-50" />
+                <div className="bg-purple-300 h-[100px] w-full rounded-t-xl flex items-end justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-t from-purple-600 via-purple-400 to-purple-300 opacity-90" />
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* My Achievement */}
-          <div className="bg-white mx-auto w-fit -mt-4 rounded-full py-2 px-6 flex items-center gap-4 shadow-lg relative z-30">
-            <div className="flex items-center gap-2">
-              <div className="bg-yellow-100 rounded-full p-1.5">
-                <BadgeCheck className="w-5 h-5 text-yellow-500" />
-              </div>
-              <span className="text-gray-600">My Achievement</span>
-            </div>
-            <div className="bg-indigo-100 rounded-full px-4 py-1 font-bold text-indigo-600">
-              {myPosition}
             </div>
           </div>
         </div>
@@ -678,8 +703,8 @@ export default function Leaderboard() {
               </div>
               <div className="px-4 pb-4 relative z-10">
                 <p className="text-sm text-gray-600">
-                  You're doing great! Keep up the excellent work and climb higher
-                  on the leaderboard.
+                  You're doing great! Keep up the excellent work and climb
+                  higher on the leaderboard.
                 </p>
               </div>
             </motion.div>
@@ -751,61 +776,61 @@ export default function Leaderboard() {
 
       {/* Add custom styles for date picker */}
       <style jsx="true" global="true">{`
-          @keyframes shimmer {
-            0% {
-              transform: translateX(-100%);
-            }
-            100% {
-              transform: translateX(100%);
-            }
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
           }
-          @keyframes float {
-            0%,
-            100% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(-10px);
-            }
+          100% {
+            transform: translateX(100%);
           }
+        }
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
 
-          .animate-shimmer {
-            background: linear-gradient(
-              90deg,
-              transparent 0%,
-              rgba(255, 255, 255, 0.3) 50%,
-              transparent 100%
-            );
-            animation: shimmer 2s infinite;
-          }
+        .animate-shimmer {
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            transparent 100%
+          );
+          animation: shimmer 2s infinite;
+        }
 
-          .react-datepicker {
-            border: none !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-            border-radius: 12px !important;
-            font-family: inherit !important;
-          }
+        .react-datepicker {
+          border: none !important;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+          border-radius: 12px !important;
+          font-family: inherit !important;
+        }
 
-          .react-datepicker__header {
-            background-color: white !important;
-            border-bottom: 1px solid #f0f0f0 !important;
-            padding-top: 12px !important;
-          }
+        .react-datepicker__header {
+          background-color: white !important;
+          border-bottom: 1px solid #f0f0f0 !important;
+          padding-top: 12px !important;
+        }
 
-          .react-datepicker__day--selected,
-          .react-datepicker__day--in-range {
-            background-color: #6d28d9 !important;
-            color: white !important;
-          }
+        .react-datepicker__day--selected,
+        .react-datepicker__day--in-range {
+          background-color: #6d28d9 !important;
+          color: white !important;
+        }
 
-          .react-datepicker__day--in-selecting-range {
-            background-color: rgba(109, 40, 217, 0.2) !important;
-          }
+        .react-datepicker__day--in-selecting-range {
+          background-color: rgba(109, 40, 217, 0.2) !important;
+        }
 
-          .react-datepicker__day:hover {
-            background-color: #f0eeff !important;
-          }
-        `}</style>
+        .react-datepicker__day:hover {
+          background-color: #f0eeff !important;
+        }
+      `}</style>
     </motion.div>
   );
 }
