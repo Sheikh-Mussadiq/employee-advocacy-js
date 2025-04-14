@@ -1,16 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useParams } from 'react-router-dom';
-import { MessageSquare, Heart, Share2, Bookmark, MoreHorizontal, Send, Image as ImageIcon, X } from 'lucide-react';
-import { format } from 'date-fns';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useParams } from "react-router-dom";
+import {
+  MessageSquare,
+  Heart,
+  Share2,
+  Bookmark,
+  MoreHorizontal,
+  Send,
+  Image as ImageIcon,
+  X,
+} from "lucide-react";
+import { format } from "date-fns";
 
 const MOCK_HR_POSTS = [
   {
-    id: '1',
+    id: "1",
     author: {
-      name: 'Sarah Miller',
-      role: 'HR Director',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
+      name: "Sarah Miller",
+      role: "HR Director",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
       isModerator: true,
     },
     content: `🚀 New Career Opportunity Alert!
@@ -32,23 +41,21 @@ What we offer:
 Share this opportunity with your network! The perfect candidate might be in your connections.
 
 #TechJobs #SoftwareEngineering #RemoteWork #JobOpportunity`,
-    images: [
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c'
-    ],
+    images: ["https://images.unsplash.com/photo-1522071820081-009f0129c71c"],
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     likes: 45,
     comments: 12,
     shares: 8,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Hiring', 'TechJobs', 'Engineering'],
+    tags: ["Hiring", "TechJobs", "Engineering"],
   },
   {
-    id: '2',
+    id: "2",
     author: {
-      name: 'James Wilson',
-      role: 'Talent Acquisition Lead',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+      name: "James Wilson",
+      role: "Talent Acquisition Lead",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
       isModerator: true,
     },
     content: `📢 Exciting Growth Opportunities!
@@ -85,17 +92,17 @@ What I love most about working here is [share your experience]"
     shares: 10,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Hiring', 'Marketing', 'Careers'],
+    tags: ["Hiring", "Marketing", "Careers"],
   },
 ];
 
 const MOCK_SALES_POSTS = [
   {
-    id: '1',
+    id: "1",
     author: {
-      name: 'John Carter',
-      role: 'Sales Manager',
-      avatar: 'https://images.unsplash.com/photo-1593642532979-8c2608d2ab7d',
+      name: "John Carter",
+      role: "Sales Manager",
+      avatar: "https://images.unsplash.com/photo-1593642532979-8c2608d2ab7d",
       isModerator: false,
     },
     content: `🔥 Big Sale Alert! 🔥
@@ -110,23 +117,21 @@ What's on sale?
 Hurry up, offer valid till stocks last! ⏳
 
 #Sale #Discount #ShopNow #LimitedTimeOffer`,
-    images: [
-      'https://images.unsplash.com/photo-1562184647-6bfc30c92e30'
-    ],
+    images: ["https://images.unsplash.com/photo-1562184647-6bfc30c92e30"],
     timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     likes: 120,
     comments: 25,
     shares: 15,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Sale', 'Discount', 'Electronics', 'ShopNow'],
+    tags: ["Sale", "Discount", "Electronics", "ShopNow"],
   },
   {
-    id: '2',
+    id: "2",
     author: {
-      name: 'Emily Green',
-      role: 'Account Executive',
-      avatar: 'https://images.unsplash.com/photo-1568605112-1e100fa4d8da',
+      name: "Emily Green",
+      role: "Account Executive",
+      avatar: "https://images.unsplash.com/photo-1568605112-1e100fa4d8da",
       isModerator: false,
     },
     content: `💥 Exclusive Offer for Our VIP Clients 💥
@@ -136,26 +141,24 @@ As a token of appreciation for your continued support, we're offering a personal
 Use code: VIP40 at checkout. 
 
 #ExclusiveOffer #VIPDiscount #ThankYou #ShopNow`,
-    images: [
-      'https://images.unsplash.com/photo-1556740749-887f6717d7e4'
-    ],
+    images: ["https://images.unsplash.com/photo-1556740749-887f6717d7e4"],
     timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     likes: 80,
     comments: 10,
     shares: 5,
     hasLiked: false,
     hasSaved: false,
-    tags: ['VIP', 'Exclusive', 'Discount', 'ThankYou'],
-  }
+    tags: ["VIP", "Exclusive", "Discount", "ThankYou"],
+  },
 ];
 
 const MOCK_MARKETING_POSTS = [
   {
-    id: '1',
+    id: "1",
     author: {
-      name: 'Olivia Davis',
-      role: 'Marketing Strategist',
-      avatar: 'https://images.unsplash.com/photo-1534351594725-0c7c59db0132',
+      name: "Olivia Davis",
+      role: "Marketing Strategist",
+      avatar: "https://images.unsplash.com/photo-1534351594725-0c7c59db0132",
       isModerator: false,
     },
     content: `🚀 Boost Your Brand with Influencer Marketing 🚀
@@ -165,23 +168,21 @@ In today's digital age, influencer marketing is the key to expanding your reach.
 Let's discuss how we can collaborate and elevate your brand!
 
 #InfluencerMarketing #BrandAwareness #DigitalMarketing #Growth`,
-    images: [
-      'https://images.unsplash.com/photo-1525094217465-6f3c7e1b6f3b'
-    ],
+    images: ["https://images.unsplash.com/photo-1525094217465-6f3c7e1b6f3b"],
     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     likes: 60,
     comments: 8,
     shares: 20,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Marketing', 'Influencer', 'BrandGrowth', 'DigitalMarketing'],
+    tags: ["Marketing", "Influencer", "BrandGrowth", "DigitalMarketing"],
   },
   {
-    id: '2',
+    id: "2",
     author: {
-      name: 'Liam Carter',
-      role: 'Content Marketing Manager',
-      avatar: 'https://images.unsplash.com/photo-1589985221293-d4ea0bb015f6',
+      name: "Liam Carter",
+      role: "Content Marketing Manager",
+      avatar: "https://images.unsplash.com/photo-1589985221293-d4ea0bb015f6",
       isModerator: false,
     },
     content: `📈 5 Tips for Effective Content Marketing 📈
@@ -196,26 +197,24 @@ Want to create content that drives traffic and engages your audience? Here are 5
 Let's create content that resonates!
 
 #ContentMarketing #SEO #Storytelling #Engagement #Growth`,
-    images: [
-      'https://images.unsplash.com/photo-1506378055360-650fa8bbad1c'
-    ],
+    images: ["https://images.unsplash.com/photo-1506378055360-650fa8bbad1c"],
     timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
     likes: 40,
     comments: 15,
     shares: 10,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Marketing', 'ContentStrategy', 'Growth', 'SEO'],
-  }
+    tags: ["Marketing", "ContentStrategy", "Growth", "SEO"],
+  },
 ];
 
 const MOCK_FEEDBACK_POSTS = [
   {
-    id: '1',
+    id: "1",
     author: {
-      name: 'Sophia Adams',
-      role: 'Customer Service Manager',
-      avatar: 'https://images.unsplash.com/photo-1555685813-1c8f71b4ac22',
+      name: "Sophia Adams",
+      role: "Customer Service Manager",
+      avatar: "https://images.unsplash.com/photo-1555685813-1c8f71b4ac22",
       isModerator: false,
     },
     content: `📢 We Value Your Feedback! 📢
@@ -227,23 +226,21 @@ We strive to improve and provide the best service possible. Please take a moment
 Your feedback helps us serve you better!
 
 #CustomerFeedback #Survey #Improvement #ThankYou`,
-    images: [
-      'https://images.unsplash.com/photo-1593642532979-8c2608d2ab7d'
-    ],
+    images: ["https://images.unsplash.com/photo-1593642532979-8c2608d2ab7d"],
     timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
     likes: 50,
     comments: 30,
     shares: 5,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Feedback', 'CustomerService', 'Improvement', 'Survey'],
+    tags: ["Feedback", "CustomerService", "Improvement", "Survey"],
   },
   {
-    id: '2',
+    id: "2",
     author: {
-      name: 'Benjamin Clark',
-      role: 'Product Manager',
-      avatar: 'https://images.unsplash.com/photo-1569984257-76ef0759b8bc',
+      name: "Benjamin Clark",
+      role: "Product Manager",
+      avatar: "https://images.unsplash.com/photo-1569984257-76ef0759b8bc",
       isModerator: false,
     },
     content: `📝 We Want Your Opinion! 📝
@@ -255,56 +252,56 @@ Our latest update is live! We'd love to hear your thoughts on the new features.
 Your opinions are vital in shaping the future of our product!
 
 #UserFeedback #ProductUpdate #CustomerVoice #TechCommunity`,
-    images: [
-      'https://images.unsplash.com/photo-1520749815167-8f5b29edc88a'
-    ],
+    images: ["https://images.unsplash.com/photo-1520749815167-8f5b29edc88a"],
     timestamp: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
     likes: 70,
     comments: 18,
     shares: 10,
     hasLiked: false,
     hasSaved: false,
-    tags: ['Feedback', 'ProductUpdate', 'UserVoice', 'Tech'],
-  }
+    tags: ["Feedback", "ProductUpdate", "UserVoice", "Tech"],
+  },
 ];
-
 
 export default function ChannelFeed() {
   const { section } = useParams();
   const [posts, setPosts] = useState([]);
-  
-  let title = '';
-  let description = '';
+
+  let title = "";
+  let description = "";
 
   switch (section) {
-    case 'sales':
-      title = 'Sales Channel';
-      description = 'Content inspiration and best practices for sales professionals';
+    case "sales":
+      title = "Sales Channel";
+      description =
+        "Content inspiration and best practices for sales professionals";
       break;
-    case 'marketing':
-      title = 'Marketing Channel';
-      description = 'Content inspiration and best practices for marketing professionals';
+    case "marketing":
+      title = "Marketing Channel";
+      description =
+        "Content inspiration and best practices for marketing professionals";
       break;
-    case 'hr':
-      title = 'HR Channel';
-      description = 'Share open positions and career opportunities with your network';
+    case "hr":
+      title = "HR Channel";
+      description =
+        "Share open positions and career opportunities with your network";
       break;
-    case 'feedback':
-      title = 'Ask for Feedback';
-      description = 'Share your content and get feedback from your colleagues';
+    case "feedback":
+      title = "Ask for Feedback";
+      description = "Share your content and get feedback from your colleagues";
       break;
   }
 
   useEffect(() => {
     setPosts(() => {
       switch (section) {
-        case 'sales':
+        case "sales":
           return MOCK_SALES_POSTS;
-        case 'marketing':
+        case "marketing":
           return MOCK_MARKETING_POSTS;
-        case 'hr':
+        case "hr":
           return MOCK_HR_POSTS;
-        case 'feedback':
+        case "feedback":
           return MOCK_FEEDBACK_POSTS;
         default:
           return [];
@@ -312,64 +309,69 @@ export default function ChannelFeed() {
     });
   }, [section]);
 
-  const [newPost, setNewPost] = useState('');
+  const [newPost, setNewPost] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const fileInputRef = useRef(null);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
-    
-    files.forEach(file => {
+
+    files.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedImages(prev => [...prev, reader.result]);
+        setSelectedImages((prev) => [...prev, reader.result]);
       };
       reader.readAsDataURL(file);
     });
   };
 
   const removeImage = (index) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleLike = (postId) => {
-    setPosts(posts.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          likes: post.hasLiked ? post.likes - 1 : post.likes + 1,
-          hasLiked: !post.hasLiked,
-        };
-      }
-      return post;
-    }));
+    setPosts(
+      posts.map((post) => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            likes: post.hasLiked ? post.likes - 1 : post.likes + 1,
+            hasLiked: !post.hasLiked,
+          };
+        }
+        return post;
+      })
+    );
   };
 
   const handleSave = (postId) => {
-    setPosts(posts.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          hasSaved: !post.hasSaved,
-        };
-      }
-      return post;
-    }));
+    setPosts(
+      posts.map((post) => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            hasSaved: !post.hasSaved,
+          };
+        }
+        return post;
+      })
+    );
   };
 
   const handleSubmitPost = (e) => {
     e.preventDefault();
-    if ((!newPost.trim() && selectedImages.length === 0) || isSubmitting) return;
+    if ((!newPost.trim() && selectedImages.length === 0) || isSubmitting)
+      return;
 
     setIsSubmitting(true);
-    
+
     const newPostObj = {
       id: Date.now().toString(),
       author: {
-        name: 'Current User',
-        role: 'Team Member',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+        name: "Current User",
+        role: "Team Member",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
         isModerator: false,
       },
       content: newPost,
@@ -384,7 +386,7 @@ export default function ChannelFeed() {
     };
 
     setPosts([newPostObj, ...posts]);
-    setNewPost('');
+    setNewPost("");
     setSelectedImages([]);
     setIsSubmitting(false);
   };
@@ -392,14 +394,16 @@ export default function ChannelFeed() {
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
+
     if (diffInHours < 1) {
-      return 'Just now';
+      return "Just now";
     } else if (diffInHours < 24) {
       return `${diffInHours}h ago`;
     } else {
-      return format(date, 'MMM d');
+      return format(date, "MMM d");
     }
   };
 
@@ -407,7 +411,7 @@ export default function ChannelFeed() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-6"
+      className="space-y-6 max-w-2xl flex flex-col mx-auto"
     >
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -417,19 +421,19 @@ export default function ChannelFeed() {
         <h2 className="text-2xl font-bold text-design-black">{title}</h2>
         <p className="text-design-primaryGrey mt-1">{description}</p>
       </motion.div>
-      <motion.div 
+      <motion.div
         className="space-y-6"
         initial="hidden"
         animate="visible"
         variants={{
           visible: {
             transition: {
-              staggerChildren: 0.1
-            }
-          }
+              staggerChildren: 0.1,
+            },
+          },
         }}
       >
-        {section === 'feedback' && (
+        {section === "feedback" && (
           <motion.form
             onSubmit={handleSubmitPost}
             className="card"
@@ -444,7 +448,9 @@ export default function ChannelFeed() {
                   className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
                 />
                 <div>
-                  <h3 className="font-semibold text-design-black">Current User</h3>
+                  <h3 className="font-semibold text-design-black">
+                    Current User
+                  </h3>
                   <p className="text-sm text-design-primaryGrey">Team Member</p>
                 </div>
               </div>
@@ -460,16 +466,16 @@ export default function ChannelFeed() {
               />
 
               {selectedImages.length > 0 && (
-                <motion.div 
+                <motion.div
                   className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2"
                   initial="hidden"
                   animate="visible"
                   variants={{
                     visible: {
                       transition: {
-                        staggerChildren: 0.05
-                      }
-                    }
+                        staggerChildren: 0.05,
+                      },
+                    },
                   }}
                 >
                   {selectedImages.map((image, index) => (
@@ -477,7 +483,7 @@ export default function ChannelFeed() {
                       key={index}
                       variants={{
                         hidden: { opacity: 0, scale: 0.8 },
-                        visible: { opacity: 1, scale: 1 }
+                        visible: { opacity: 1, scale: 1 },
                       }}
                       className="relative group"
                     >
@@ -524,7 +530,10 @@ export default function ChannelFeed() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}
                 type="submit"
-                disabled={(!newPost.trim() && selectedImages.length === 0) || isSubmitting}
+                disabled={
+                  (!newPost.trim() && selectedImages.length === 0) ||
+                  isSubmitting
+                }
                 className="btn-primary rounded-full ml-auto"
               >
                 <Send className="w-4 h-4" />
@@ -534,12 +543,12 @@ export default function ChannelFeed() {
           </motion.form>
         )}
 
-        {posts.map(post => (
+        {posts.map((post) => (
           <motion.article
             key={post.id}
             variants={{
               hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
+              visible: { opacity: 1, y: 0 },
             }}
             className="card group hover:shadow-lg transition-all duration-300"
           >
@@ -569,9 +578,13 @@ export default function ChannelFeed() {
                         {post.author.name}
                       </h3>
                       <span className="text-sm text-design-primaryGrey">·</span>
-                      <span className="text-sm text-design-primaryGrey">{post.author.role}</span>
+                      <span className="text-sm text-design-primaryGrey">
+                        {post.author.role}
+                      </span>
                     </div>
-                    <p className="text-xs text-design-primaryGrey mt-1">{formatTimestamp(post.timestamp)}</p>
+                    <p className="text-xs text-design-primaryGrey mt-1">
+                      {formatTimestamp(post.timestamp)}
+                    </p>
                   </div>
                 </div>
                 <motion.button
@@ -585,9 +598,11 @@ export default function ChannelFeed() {
 
               <div className="mt-4">
                 <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap text-base md:text-lg text-design-black">{post.content}</p>
+                  <p className="whitespace-pre-wrap text-base md:text-lg text-design-black">
+                    {post.content}
+                  </p>
                 </div>
-                
+
                 {post.images && post.images.length > 0 && (
                   <motion.div
                     className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2"
@@ -596,16 +611,16 @@ export default function ChannelFeed() {
                     variants={{
                       visible: {
                         transition: {
-                          staggerChildren: 0.05
-                        }
-                      }
+                          staggerChildren: 0.05,
+                        },
+                      },
                     }}
                   >
                     {post.images.map((image, index) => (
                       <motion.img
                         variants={{
                           hidden: { opacity: 0, scale: 0.8 },
-                          visible: { opacity: 1, scale: 1 }
+                          visible: { opacity: 1, scale: 1 },
                         }}
                         whileHover={{ scale: 1.02 }}
                         key={index}
@@ -618,7 +633,7 @@ export default function ChannelFeed() {
                 )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {post.tags.map(tag => (
+                  {post.tags.map((tag) => (
                     <motion.span
                       whileHover={{ scale: 1.05 }}
                       key={tag}
@@ -644,13 +659,17 @@ export default function ChannelFeed() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleLike(post.id)}
                   className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg hover:bg-gray-50 ${
-                    post.hasLiked ? 'text-button-primary-cta' : 'text-design-primaryGrey'
+                    post.hasLiked
+                      ? "text-button-primary-cta"
+                      : "text-design-primaryGrey"
                   }`}
                 >
-                  <Heart className={`w-5 h-5 ${post.hasLiked ? 'fill-current' : ''}`} />
+                  <Heart
+                    className={`w-5 h-5 ${post.hasLiked ? "fill-current" : ""}`}
+                  />
                   <span className="text-sm">Like</span>
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -659,7 +678,7 @@ export default function ChannelFeed() {
                   <MessageSquare className="w-5 h-5" />
                   <span className="text-sm">Comment</span>
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -668,16 +687,20 @@ export default function ChannelFeed() {
                   <Share2 className="w-5 h-5" />
                   <span className="text-sm">Share</span>
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleSave(post.id)}
                   className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg hover:bg-gray-50 ${
-                    post.hasSaved ? 'text-button-primary-cta' : 'text-design-primaryGrey'
+                    post.hasSaved
+                      ? "text-button-primary-cta"
+                      : "text-design-primaryGrey"
                   }`}
                 >
-                  <Bookmark className={`w-5 h-5 ${post.hasSaved ? 'fill-current' : ''}`} />
+                  <Bookmark
+                    className={`w-5 h-5 ${post.hasSaved ? "fill-current" : ""}`}
+                  />
                   <span className="text-sm">Save</span>
                 </motion.button>
               </div>

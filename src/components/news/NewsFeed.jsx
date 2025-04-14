@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import FeedList from '../FeedList';
+import React from "react";
+import { motion } from "framer-motion";
+import FeedList from "../FeedList";
 
 export default function NewsFeed({ feed, isLoading, error }) {
   return (

@@ -1,11 +1,11 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import FeedItem from './FeedItem';
+import React from "react";
+import { motion } from "framer-motion";
+import FeedItem from "./FeedItem";
 
 export default function FeedList({ feed, isLoading, error }) {
   if (isLoading) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="flex justify-center items-center min-h-[200px]"
@@ -21,21 +21,19 @@ export default function FeedList({ feed, isLoading, error }) {
 
   if (error) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center p-6 bg-semantic-error-light rounded-xl border border-semantic-error/20"
       >
-        <p className="text-semantic-error font-medium">
-        {error}
-        </p>
+        <p className="text-semantic-error font-medium">{error}</p>
       </motion.div>
     );
   }
 
   if (!feed) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center p-6 bg-design-greyBG rounded-xl border border-design-greyOutlines"
@@ -48,7 +46,7 @@ export default function FeedList({ feed, isLoading, error }) {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial="hidden"
       animate="visible"
       variants={{
@@ -56,11 +54,11 @@ export default function FeedList({ feed, isLoading, error }) {
         visible: {
           opacity: 1,
           transition: {
-            staggerChildren: 0.1
-          }
-        }
+            staggerChildren: 0.1,
+          },
+        },
       }}
-      className="space-y-6"
+      className="space-y-6 max-w-2xl flex flex-col mx-auto"
     >
       {feed.items.map((item, index) => (
         <FeedItem key={item.link + index} item={item} />
