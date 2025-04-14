@@ -1,11 +1,18 @@
-import React, { useState, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { motion, useAnimation } from "framer-motion";
+import { useSwipeable } from "react-swipeable";
 import {
   Heart,
   MessageCircle,
   Share2,
   MoreHorizontal,
   ThumbsUp,
+  ChevronLeft,
+  ChevronRight,
+  ArrowLeft,
+  ArrowRight,
+  Info,
+  AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import CompanyNews from "./news/CompanyNews";
@@ -16,12 +23,103 @@ import { filterFunctions } from "../utils/postSorting";
 import PostFilters from "./posts/PostFilters";
 import { MOCK_POSTS } from "../data/mockPosts";
 
+// Constants for keyboard navigation
+const KEYS = {
+  ENTER: "Enter",
+  SPACE: " ",
+  ESCAPE: "Escape",
+  ARROW_LEFT: "ArrowLeft",
+  ARROW_RIGHT: "ArrowRight",
+  ARROW_UP: "ArrowUp",
+  ARROW_DOWN: "ArrowDown",
+  TAB: "Tab",
+};
+
+// Swipe threshold for mobile navigation
+const SWIPE_CONFIG = {
+  delta: 10, // Min distance required for swipe
+  preventDefaultTouchmoveEvent: true, // Prevent scrolling while swiping
+  trackTouch: true, // Track touch input
+  trackMouse: false, // Don't track mouse input
+  rotationAngle: 0, // Rotation angle
+};
+
 export default function ColleaguesFeed() {
   const [posts, setPosts] = useState(MOCK_POSTS);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [activeFilter, setActiveFilter] = useState("latest");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [focusedPostIndex, setFocusedPostIndex] = useState(-1);
+  const [showAccessibilityTip, setShowAccessibilityTip] = useState(false);
+  const [currentPostIndex, setCurrentPostIndex] = useState(0);
+
+  // Refs for keyboard navigation
+  const postRefs = useRef([]);
+  const feedRef = useRef(null);
+
+  // Animation controls
+  const controls = useAnimation();
+
+  // Reset post refs when posts change
+  useEffect(() => {
+    postRefs.current = postRefs.current.slice(0, posts.length);
+  }, [posts.length]);
+
+  // Show accessibility tip on first load
+  useEffect(() => {
+    const hasSeenTip = localStorage.getItem("hasSeenAccessibilityTip");
+    if (!hasSeenTip) {
+      setShowAccessibilityTip(true);
+      // Don't show again for this session
+      localStorage.setItem("hasSeenAccessibilityTip", "true");
+    }
+
+    // Add keyboard event listener for global navigation
+    const handleKeyDown = (e) => {
+      if (document.activeElement === document.body) {
+        if (e.key === KEYS.ARROW_DOWN) {
+          e.preventDefault();
+          setFocusedPostIndex((prev) => Math.min(prev + 1, posts.length - 1));
+          if (focusedPostIndex >= 0 && postRefs.current[focusedPostIndex + 1]) {
+            postRefs.current[focusedPostIndex + 1].focus();
+          }
+        } else if (e.key === KEYS.ARROW_UP) {
+          e.preventDefault();
+          setFocusedPostIndex((prev) => Math.max(prev - 1, 0));
+          if (focusedPostIndex > 0 && postRefs.current[focusedPostIndex - 1]) {
+            postRefs.current[focusedPostIndex - 1].focus();
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [focusedPostIndex, posts.length]);
+
+  // Configure swipe handlers for mobile navigation
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      // Navigate to next post on mobile
+      setCurrentPostIndex((prev) => Math.min(prev + 1, posts.length - 1));
+      if (postRefs.current[currentPostIndex + 1]) {
+        postRefs.current[currentPostIndex + 1].scrollIntoView({
+          behavior: "smooth",
+        });
+      }
+    },
+    onSwipedRight: () => {
+      // Navigate to previous post on mobile
+      setCurrentPostIndex((prev) => Math.max(prev - 1, 0));
+      if (postRefs.current[currentPostIndex - 1]) {
+        postRefs.current[currentPostIndex - 1].scrollIntoView({
+          behavior: "smooth",
+        });
+      }
+    },
+    ...SWIPE_CONFIG,
+  });
 
   const loadMore = useCallback(() => {
     if (isLoading || !hasMore) return;
@@ -176,8 +274,9 @@ export default function ColleaguesFeed() {
                 >
                   <img
                     src={post.author.avatar}
-                    alt={post.author.name}
-                    className="w-12 h-12 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
+                    alt={`${post.author.name}'s profile picture`}
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
+                    loading="lazy"
                   />
                 </motion.div>
                 <div>
@@ -262,12 +361,21 @@ export default function ColleaguesFeed() {
                 />
                 <span>Like</span>
               </button>
-              <button className="btn-secondary flex items-center space-x-2">
-                <MessageCircle className="w-5 h-5" />
+              <button
+                className="btn-secondary flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm md:text-base touch-action-manipulation"
+                aria-label="Comment on this post"
+              >
+                <MessageCircle
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                  aria-hidden="true"
+                />
                 <span>Comment</span>
               </button>
-              <button className="btn-secondary flex items-center space-x-2">
-                <Share2 className="w-5 h-5" />
+              <button
+                className="btn-secondary flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm touch-action-manipulation"
+                aria-label="Share this post"
+              >
+                <Share2 className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
                 <span>Share</span>
               </button>
             </motion.div>
@@ -276,11 +384,22 @@ export default function ColleaguesFeed() {
       ))}
 
       {isLoading && (
-        <div className="space-y-6">
-          <PostSkeleton />
-          <PostSkeleton />
+        <div
+          className="space-y-4 sm:space-y-6"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <PostSkeleton index={0} />
+          <PostSkeleton index={1} />
+          <PostSkeleton index={2} />
         </div>
       )}
+
+      {/* Keyboard navigation instructions for screen readers */}
+      <div className="sr-only" aria-live="polite">
+        Use arrow keys to navigate between posts. Press Tab to move between
+        interactive elements. Press Enter or Space to activate buttons.
+      </div>
     </motion.div>
   );
 }

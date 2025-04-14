@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Image as ImageIcon } from "lucide-react";
 
 export default function ImageGallery({ images }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [loadedImages, setLoadedImages] = useState({});
+
+  // Track which images have loaded
+  const handleImageLoad = (index) => {
+    setLoadedImages((prev) => ({
+      ...prev,
+      [index]: true,
+    }));
+  };
 
   const openLightbox = (index) => {
     setSelectedImage(index);
@@ -25,10 +34,25 @@ export default function ImageGallery({ images }) {
             className="relative aspect-video cursor-pointer"
             onClick={() => openLightbox(index)}
           >
+            {/* Placeholder shown while image is loading */}
+            {!loadedImages[index] && (
+              <div className="absolute inset-0 flex items-center justify-center bg-design-greyBG rounded-lg">
+                <div className="animate-pulse flex flex-col items-center justify-center">
+                  <ImageIcon className="w-8 h-8 text-design-primaryGrey opacity-50" />
+                  <span className="text-xs text-design-primaryGrey mt-2">
+                    Loading...
+                  </span>
+                </div>
+              </div>
+            )}
             <img
               src={image}
-              alt=""
-              className="rounded-lg object-cover w-full h-full"
+              alt="Post image"
+              loading="lazy"
+              onLoad={() => handleImageLoad(index)}
+              className={`rounded-lg object-cover w-full h-full transition-opacity duration-300 ${
+                !loadedImages[index] ? "opacity-0" : "opacity-100"
+              }`}
             />
           </motion.div>
         ))}
@@ -69,6 +93,7 @@ export default function ImageGallery({ images }) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               src={images[selectedImage]}
+              alt="Enlarged post image"
               className="max-h-[90vh] max-w-[90vw] object-contain"
               onClick={(e) => e.stopPropagation()}
             />
