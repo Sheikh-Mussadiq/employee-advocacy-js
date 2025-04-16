@@ -67,8 +67,7 @@ const ProtectedLoginRoute = () => {
     return <Navigate to="/news" replace />;
   }
 
-  return isDevelopment ? <LoginPage /> : <Login />;
-
+  return isDevelopment ? <Login /> : <LoginPage />;
 };
 
 export default function App() {
@@ -79,12 +78,9 @@ export default function App() {
           <EditorProvider>
             <Routes>
               {/* <Route path="/loading" element={<LoadingScreen />} /> */}
+              <Route path="/login" element={<ProtectedLoginRoute />} />
               <Route
-                  path="/login"
-                  element={<ProtectedLoginRoute />}
-                />
-              <Route 
-                path="/*" 
+                path="/*"
                 element={
                   <ProtectedRoute>
                     <AppContent />
