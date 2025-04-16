@@ -15,12 +15,12 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
-import CompanyNews from "./news/CompanyNews";
-import CreatePost from "./posts/CreatePost";
-import PostSkeleton from "./posts/PostSkeleton";
-import ImageGallery from "./posts/ImageGallery";
+import CompanyNews from "../components/news/CompanyNews";
+import CreatePost from "../components/posts/CreatePost";
+import PostSkeleton from "../components/posts/PostSkeleton";
+import ImageGallery from "../components/posts/ImageGallery";
 import { filterFunctions } from "../utils/postSorting";
-import PostFilters from "./posts/PostFilters";
+import PostFilters from "../components/posts/PostFilters";
 import { MOCK_POSTS } from "../data/mockPosts";
 
 // Constants for keyboard navigation

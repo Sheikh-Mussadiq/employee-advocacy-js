@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
-import RSSFeedSettings from './settings/RSSFeedSettings';
-import AIPromptSettings from './settings/AIPromptSettings';
-import PWASettings from './settings/PWASettings';
-import { MOCK_USER } from './settings/UserProfileSettings';
+import RSSFeedSettings from '../components/settings/RSSFeedSettings';
+import AIPromptSettings from '../components/settings/AIPromptSettings';
+import PWASettings from '../components/settings/PWASettings';
+import { MOCK_USER } from '../components/settings/UserProfileSettings';
 
-export default function Settings({ setFeed, setIsLoading, setError }) {
+export default function Settings() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('account');
+  const [feed, setFeed] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
