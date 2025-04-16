@@ -51,16 +51,13 @@ export function AuthProvider({ children }) {
       // const userData = apiResponse.userInfo.sbUser;
       // setAuthUser(userData);
 
-      const emailPreferance = await getUserEmailNotification(
-        userData.data.user.id
-      );
+      
       setCurrentUser({
         ...apiResponse.userInfo,
         userName: `${apiResponse.userInfo.firstName.replace(
           /\s+/g,
           ""
         )}_${apiResponse.userInfo.lastName.replace(/\s+/g, "")}`,
-        email_preferance: emailPreferance,
       });
 
       setCurrentUserTeams(apiResponse.userTeams);

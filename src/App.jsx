@@ -19,17 +19,19 @@ import { useNotifications } from "./context/NotificationContext";
 import MainLayout from "./components/layouts/MainLayout";
 import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./components/ProtectedRoute";
+import LoginPage from "./pages/LoginPage";
+import Login from "./pages/Login";
 
 function AppContent() {
   const { markAsRead } = useNotifications();
-  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const path = window.location.pathname.substring(1) || "news";
     markAsRead(path);
   }, [window.location.pathname]);
 
-  if (authLoading) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
@@ -53,6 +55,22 @@ function AppContent() {
   );
 }
 
+const ProtectedLoginRoute = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+  const isDevelopment = import.meta.env.VITE_ENVIORNMENT === "development";
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/news" replace />;
+  }
+
+  return isDevelopment ? <LoginPage /> : <Login />;
+
+};
+
 export default function App() {
   return (
     <Router>
@@ -60,7 +78,11 @@ export default function App() {
         <NotificationProvider>
           <EditorProvider>
             <Routes>
-              <Route path="/loading" element={<LoadingScreen />} />
+              {/* <Route path="/loading" element={<LoadingScreen />} /> */}
+              <Route
+                  path="/login"
+                  element={<ProtectedLoginRoute />}
+                />
               <Route 
                 path="/*" 
                 element={
