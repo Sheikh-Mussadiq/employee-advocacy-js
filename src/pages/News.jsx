@@ -14,16 +14,20 @@ export default function News() {
   }, []);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
+    <motion.div
+      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="w-full space-y-4"
     >
       <div className="mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900">Company News</h2>
-        <p className="text-sm md:text-base text-gray-600 mt-1">Latest updates and announcements from the company</p>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+          Company News
+        </h2>
+        <p className="text-sm md:text-base text-gray-600 mt-1">
+          Latest updates and announcements from the company
+        </p>
       </div>
-      <div className="bg-white rounded-lg shadow-sm">
+      <div className="">
         <NewsFeed feed={feed} isLoading={isLoading} error={error} />
       </div>
     </motion.div>

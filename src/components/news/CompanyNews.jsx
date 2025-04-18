@@ -1,26 +1,26 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Building2, ArrowRight } from 'lucide-react';
-import { format } from 'date-fns';
+import React from "react";
+import { motion } from "framer-motion";
+import { Building2, ArrowRight } from "lucide-react";
+import { format } from "date-fns";
 
 const COMPANY_NEWS = [
   {
     id: 1,
-    title: 'Q4 2023 Financial Results',
-    date: '2024-03-15',
-    type: 'Financial'
+    title: "Q4 2023 Financial Results",
+    date: "2024-03-15",
+    type: "Financial",
   },
   {
     id: 2,
-    title: 'New Office Opening in Singapore',
-    date: '2024-03-12',
-    type: 'Expansion'
+    title: "New Office Opening in Singapore",
+    date: "2024-03-12",
+    type: "Expansion",
   },
   {
     id: 3,
-    title: 'Sustainability Report 2023',
-    date: '2024-03-10',
-    type: 'Report'
+    title: "Sustainability Report 2023",
+    date: "2024-03-10",
+    type: "Report",
   },
 ];
 
@@ -42,11 +42,11 @@ export default function CompanyNews() {
           <Building2 className="w-5 h-5 text-blue-500" />
         </motion.div>
       </div>
-      
+
       <div className="space-y-4">
         {COMPANY_NEWS.map((news, index) => (
-          <motion.div 
-            key={news.id} 
+          <motion.div
+            key={news.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
@@ -56,7 +56,9 @@ export default function CompanyNews() {
           >
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-design-black group-hover:text-button-primary-cta transition-colors duration-200">{news.title}</p>
+                <p className="font-medium text-design-black group-hover:text-button-primary-cta transition-colors duration-200">
+                  {news.title}
+                </p>
                 <div className="flex items-center gap-2 mt-1">
                   <motion.span
                     whileHover={{ scale: 1.05 }}
@@ -65,7 +67,7 @@ export default function CompanyNews() {
                     {news.type}
                   </motion.span>
                   <span className="text-sm text-design-primaryGrey">
-                    {format(new Date(news.date), 'MMM d, yyyy')}
+                    {format(new Date(news.date), "MMM d, yyyy")}
                   </span>
                 </div>
               </div>
@@ -73,7 +75,7 @@ export default function CompanyNews() {
           </motion.div>
         ))}
       </div>
-      
+
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}

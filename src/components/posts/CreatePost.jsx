@@ -1,24 +1,91 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Image, Video, Hash, AtSign, X } from "lucide-react";
 
-export default function CreatePost({ onSubmit }) {
+export default function CreatePost({
+  onSubmit,
+  editingPost,
+  onUpdate,
+  onCancelEdit,
+}) {
   const [content, setContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Set form data when editing a post
+  useEffect(() => {
+    if (editingPost) {
+      setContent(editingPost.content || "");
+      setIsEditing(true);
+
+      // Convert post images to mediaFiles format
+      const newMediaFiles = [];
+
+      if (editingPost.images && editingPost.images.length > 0) {
+        editingPost.images.forEach((imageUrl) => {
+          newMediaFiles.push({
+            url: imageUrl,
+            type: "image",
+          });
+        });
+      }
+
+      if (editingPost.video) {
+        newMediaFiles.push({
+          url: editingPost.video,
+          type: "video",
+        });
+      }
+
+      setMediaFiles(newMediaFiles);
+
+      // Focus the textarea
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+        }
+      }, 100);
+    } else {
+      setIsEditing(false);
+    }
+  }, [editingPost]);
 
   const handleSubmit = () => {
     if (!content.trim() && mediaFiles.length === 0) return;
 
-    onSubmit({
-      content,
-      images: mediaFiles.filter((m) => m.type === "image").map((m) => m.url),
-      video: mediaFiles.find((m) => m.type === "video")?.url,
-      timestamp: new Date().toISOString(),
-    });
+    if (isEditing && editingPost) {
+      // Update existing post
+      onUpdate({
+        ...editingPost,
+        content,
+        images: mediaFiles.filter((m) => m.type === "image").map((m) => m.url),
+        video: mediaFiles.find((m) => m.type === "video")?.url,
+      });
+    } else {
+      // Create new post
+      onSubmit({
+        content,
+        images: mediaFiles.filter((m) => m.type === "image").map((m) => m.url),
+        video: mediaFiles.find((m) => m.type === "video")?.url,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
+    // Reset form
     setContent("");
     setMediaFiles([]);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setContent("");
+    setMediaFiles([]);
+    setIsEditing(false);
+    if (onCancelEdit) {
+      onCancelEdit();
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -39,10 +106,29 @@ export default function CreatePost({ onSubmit }) {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="card p-4 space-y-4"
+      className={`card p-4 space-y-4 ${
+        isEditing ? "border-2 border-button-primary-cta" : ""
+      }`}
     >
+      {isEditing && (
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="font-semibold text-design-black">Edit Post</h3>
+          <button
+            className="text-design-primaryGrey hover:text-design-black"
+            onClick={handleCancel}
+          >
+            <X size={20} />
+          </button>
+        </div>
+      )}
+
       <textarea
-        placeholder="Share something with your colleagues..."
+        ref={textareaRef}
+        placeholder={
+          isEditing
+            ? "Edit your post..."
+            : "Share something with your colleagues..."
+        }
         value={content}
         onChange={(e) => setContent(e.target.value)}
         className="w-full min-h-[100px] resize-none border-none focus:ring-0 text-design-black placeholder:text-design-primaryGrey"
@@ -111,14 +197,27 @@ export default function CreatePost({ onSubmit }) {
           </motion.button>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleSubmit}
-          className="btn-primary px-6 py-2 bg-button-primary-cta text-white rounded-lg hover:bg-button-primary-hover"
-        >
-          Post
-        </motion.button>
+        <div className="flex space-x-2">
+          {isEditing && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleCancel}
+              className="btn-secondary px-4 py-2 text-design-black bg-design-greyBG rounded-lg hover:bg-gray-200"
+            >
+              Cancel
+            </motion.button>
+          )}
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleSubmit}
+            className="btn-primary px-6 py-2 bg-button-primary-cta text-white rounded-lg hover:bg-button-primary-hover"
+          >
+            {isEditing ? "Update" : "Post"}
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   );

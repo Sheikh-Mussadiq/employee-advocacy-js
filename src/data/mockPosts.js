@@ -3,6 +3,54 @@ const generateMockPosts = () => {
   const now = Date.now();
   const hour = 60 * 60 * 1000;
 
+  // Generate a few sample comments
+  const sampleComments = [
+    {
+      id: "comment-1",
+      author: {
+        name: "Jamie Smith",
+        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+      },
+      text: "This is amazing! Can't wait to try it out!",
+      timestamp: new Date(now - 1 * hour).toISOString(),
+      likes: 12,
+      hasLiked: false,
+    },
+    {
+      id: "comment-2",
+      author: {
+        name: "Michael Brown",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
+      },
+      text: "Really impressive work. Could you share more details about how this was implemented?",
+      timestamp: new Date(now - 2 * hour).toISOString(),
+      likes: 5,
+      hasLiked: false,
+    },
+    {
+      id: "comment-3",
+      author: {
+        name: "Taylor Wilson",
+        avatar: "https://images.unsplash.com/photo-1614289371518-722f2615943d",
+      },
+      text: "👏 Congratulations on the launch!",
+      timestamp: new Date(now - 30 * 60 * 1000).toISOString(),
+      likes: 8,
+      hasLiked: false,
+    },
+    {
+      id: "comment-4",
+      author: {
+        name: "Sophia Rodriguez",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+      },
+      text: "I've been waiting for this feature for a long time. Thank you!",
+      timestamp: new Date(now - 45 * 60 * 1000).toISOString(),
+      likes: 3,
+      hasLiked: false,
+    },
+  ];
+
   // Trending post (high engagement, recent)
   posts.push({
     id: "trending-1",
@@ -19,6 +67,60 @@ const generateMockPosts = () => {
     comments: 89,
     shares: 125,
     hasLiked: false,
+    commentsList: [
+      {
+        id: "comment-1",
+        author: {
+          name: "Jamie Smith",
+          avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+        },
+        text: "This is amazing! Can't wait to try it out!",
+        timestamp: new Date(now - 1 * hour).toISOString(),
+        likes: 12,
+        hasLiked: false,
+        replies: [
+          {
+            id: "reply-1-1",
+            author: {
+              name: "Alex Thompson",
+              avatar:
+                "https://images.unsplash.com/photo-1519345182560-3f2917c472ef",
+            },
+            text: "Thanks Jamie! We're really excited about it too! Let me know what you think after trying it.",
+            timestamp: new Date(now - 55 * 60 * 1000).toISOString(),
+            likes: 3,
+            hasLiked: false,
+          },
+          {
+            id: "reply-1-2",
+            author: {
+              name: "Nora Adams",
+              avatar:
+                "https://images.unsplash.com/photo-1589571894960-20bbe2828d0a",
+            },
+            text: "I've been using it for the last hour and it's a game-changer!",
+            timestamp: new Date(now - 30 * 60 * 1000).toISOString(),
+            likes: 5,
+            hasLiked: false,
+          },
+        ],
+      },
+      sampleComments[1],
+      sampleComments[2],
+      {
+        id: "comment-trending-1",
+        author: {
+          name: "Raj Patel",
+          avatar:
+            "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d",
+        },
+        text: "The UI is incredibly intuitive. Great job team!",
+        timestamp: new Date(now - 1.5 * hour).toISOString(),
+        likes: 18,
+        hasLiked: false,
+        replies: [],
+      },
+    ],
   });
 
   // Popular but not trending (high engagement, older)
@@ -40,6 +142,31 @@ const generateMockPosts = () => {
     comments: 234,
     shares: 156,
     hasLiked: false,
+    commentsList: [
+      {
+        id: "comment-popular-1",
+        author: {
+          name: "David Kim",
+          avatar:
+            "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+        },
+        text: "Your presentation was the highlight of the conference for me! Really insightful analysis on how AI is transforming our industry.",
+        timestamp: new Date(now - 6 * 24 * hour).toISOString(),
+        likes: 45,
+        hasLiked: false,
+      },
+      {
+        id: "comment-popular-2",
+        author: {
+          name: "Lisa Wang",
+          avatar: "https://images.unsplash.com/photo-1554151228-14d9def656e4",
+        },
+        text: "Would love to discuss some of these ideas further. Are you available for a coffee chat sometime next week?",
+        timestamp: new Date(now - 5 * 24 * hour).toISOString(),
+        likes: 12,
+        hasLiked: false,
+      },
+    ],
   });
 
   // Recent but low engagement
@@ -58,6 +185,38 @@ const generateMockPosts = () => {
     comments: 3,
     shares: 0,
     hasLiked: false,
+    commentsList: [
+      {
+        id: "comment-recent-1",
+        author: {
+          name: "Emma Thompson",
+          avatar:
+            "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604",
+        },
+        text: "I love the color palette you're using. Very clean and modern!",
+        timestamp: new Date(now - 45 * 60 * 1000).toISOString(),
+        likes: 2,
+        hasLiked: false,
+        replies: [
+          {
+            id: "reply-recent-1-1",
+            author: {
+              name: "James Wilson",
+              avatar:
+                "https://images.unsplash.com/photo-1517841905240-472988babdf9",
+            },
+            text: "Thanks Emma! I was inspired by our brand guidelines but wanted to freshen things up a bit.",
+            timestamp: new Date(now - 30 * 60 * 1000).toISOString(),
+            likes: 1,
+            hasLiked: false,
+          },
+        ],
+      },
+      {
+        ...sampleComments[3],
+        replies: [],
+      },
+    ],
   });
 
   // Moderately popular and recent
@@ -79,6 +238,32 @@ const generateMockPosts = () => {
     comments: 45,
     shares: 28,
     hasLiked: false,
+    commentsList: [
+      {
+        id: "comment-trending2-1",
+        author: {
+          name: "Carlos Mendez",
+          avatar:
+            "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61",
+        },
+        text: "The consistency across components is impressive. Are you planning to make this open source?",
+        timestamp: new Date(now - 3 * hour).toISOString(),
+        likes: 14,
+        hasLiked: false,
+      },
+      {
+        id: "comment-trending2-2",
+        author: {
+          name: "Aisha Johnson",
+          avatar:
+            "https://images.unsplash.com/photo-1531123897727-8f129e1688ce",
+        },
+        text: "I really like the attention to accessibility. Great work Sarah!",
+        timestamp: new Date(now - 2.5 * hour).toISOString(),
+        likes: 8,
+        hasLiked: false,
+      },
+    ],
   });
 
   // Old post with moderate engagement
@@ -96,6 +281,20 @@ const generateMockPosts = () => {
     comments: 28,
     shares: 12,
     hasLiked: false,
+    commentsList: [
+      {
+        id: "comment-archive-1",
+        author: {
+          name: "Nina Patel",
+          avatar:
+            "https://images.unsplash.com/photo-1601412436009-d964bd02edbc",
+        },
+        text: "That was such a fun day! When's the next team event?",
+        timestamp: new Date(now - 29 * 24 * hour).toISOString(),
+        likes: 5,
+        hasLiked: false,
+      },
+    ],
   });
 
   return posts;

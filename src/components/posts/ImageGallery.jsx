@@ -7,6 +7,15 @@ export default function ImageGallery({ images }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [loadedImages, setLoadedImages] = useState({});
 
+  // Preload next image when in lightbox mode
+  useEffect(() => {
+    if (lightboxOpen && selectedImage !== null && images.length > 1) {
+      const nextIndex = (selectedImage + 1) % images.length;
+      const nextImage = new Image();
+      nextImage.src = images[nextIndex];
+    }
+  }, [lightboxOpen, selectedImage, images]);
+
   // Track which images have loaded
   const handleImageLoad = (index) => {
     setLoadedImages((prev) => ({
@@ -18,6 +27,33 @@ export default function ImageGallery({ images }) {
   const openLightbox = (index) => {
     setSelectedImage(index);
     setLightboxOpen(true);
+    // Prevent body scrolling when lightbox is open
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    // Restore body scrolling
+    document.body.style.overflow = "auto";
+  };
+
+  // Generate appropriate sized srcset for responsive images
+  const generateSrcSet = (imageUrl) => {
+    if (!imageUrl) return "";
+
+    // If using Unsplash, we can leverage their dynamic resizing
+    if (imageUrl.includes("unsplash.com")) {
+      const baseUrl = imageUrl.split("?")[0];
+      return `
+        ${baseUrl}?w=400&fit=crop&auto=format 400w,
+        ${baseUrl}?w=800&fit=crop&auto=format 800w,
+        ${baseUrl}?w=1200&fit=crop&auto=format 1200w,
+        ${baseUrl}?w=1600&fit=crop&auto=format 1600w
+      `;
+    }
+
+    // For other images, just return the original
+    return imageUrl;
   };
 
   return (
@@ -47,8 +83,11 @@ export default function ImageGallery({ images }) {
             )}
             <img
               src={image}
+              srcSet={generateSrcSet(image)}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               alt="Post image"
               loading="lazy"
+              decoding="async"
               onLoad={() => handleImageLoad(index)}
               className={`rounded-lg object-cover w-full h-full transition-opacity duration-300 ${
                 !loadedImages[index] ? "opacity-0" : "opacity-100"
@@ -65,13 +104,13 @@ export default function ImageGallery({ images }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
-            onClick={() => setLightboxOpen(false)}
+            onClick={closeLightbox}
           >
             <button
               className="absolute top-4 right-4 text-white p-2"
               onClick={(e) => {
                 e.stopPropagation();
-                setLightboxOpen(false);
+                closeLightbox();
               }}
             >
               <X size={24} />
@@ -108,6 +147,12 @@ export default function ImageGallery({ images }) {
             >
               <ChevronRight size={24} />
             </button>
+            {/* Image counter */}
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                {selectedImage + 1} / {images.length}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
