@@ -21,6 +21,7 @@ import { format, subDays, subMonths, subYears } from 'date-fns';
 import ExcelJS from 'exceljs';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { supabase } from '../lib/supabase';
 
 ChartJS.register(
   CategoryScale,
@@ -102,6 +103,7 @@ const TIME_RANGE_OPTIONS = [
   { value: 'custom', label: 'Custom Range' },
 ];
 
+import { useAuth } from '../context/AuthContext';
 export default function Analytics() {
   const [selectedKPI, setSelectedKPI] = useState(KPI_OPTIONS[0]);
   const [selectedNetwork, setSelectedNetwork] = useState(NETWORK_OPTIONS[0]);
@@ -111,6 +113,7 @@ export default function Analytics() {
     new Date(),
   ]);
   const [startDate, endDate] = dateRange;
+  const { authUser , currentUser} = useAuth();
 
   const kpiData = {
     labels: MOCK_DATA.slice(0, 30).map(item => item.date),
@@ -179,64 +182,66 @@ export default function Analytics() {
   };
 
   const exportToExcel = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const createStyledSheet = (sheetName, data) => {
-        const sheet = workbook.addWorksheet(sheetName);
+    // const workbook = new ExcelJS.Workbook();
+    // const createStyledSheet = (sheetName, data) => {
+    //     const sheet = workbook.addWorksheet(sheetName);
 
-        // Add header row with styling
-        const headers = Object.keys(data[0] || {});
-        const headerRow = sheet.addRow(headers);
+    //     // Add header row with styling
+    //     const headers = Object.keys(data[0] || {});
+    //     const headerRow = sheet.addRow(headers);
 
-        headerRow.eachCell((cell) => {
-            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            cell.fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: '4F81BD' }, // Blue background
-            };
-            cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        });
+    //     headerRow.eachCell((cell) => {
+    //         cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    //         cell.fill = {
+    //             type: 'pattern',
+    //             pattern: 'solid',
+    //             fgColor: { argb: '4F81BD' }, // Blue background
+    //         };
+    //         cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    //     });
 
-        // Add data rows
-        data.forEach(row => sheet.addRow(Object.values(row)));
+    //     // Add data rows
+    //     data.forEach(row => sheet.addRow(Object.values(row)));
 
-        // Auto-fit column widths
-        sheet.columns.forEach((col, i) => {
-            let maxLength = headers[i].length;
-            col.eachCell({ includeEmpty: true }, cell => {
-                maxLength = Math.max(maxLength, cell.value ? cell.value.toString().length : 0);
-            });
-            col.width = maxLength + 2;
-        });
+    //     // Auto-fit column widths
+    //     sheet.columns.forEach((col, i) => {
+    //         let maxLength = headers[i].length;
+    //         col.eachCell({ includeEmpty: true }, cell => {
+    //             maxLength = Math.max(maxLength, cell.value ? cell.value.toString().length : 0);
+    //         });
+    //         col.width = maxLength + 2;
+    //     });
 
-        // Apply borders
-        sheet.eachRow((row) => {
-            row.eachCell((cell) => {
-                cell.border = {
-                    top: { style: 'thin' },
-                    left: { style: 'thin' },
-                    bottom: { style: 'thin' },
-                    right: { style: 'thin' }
-                };
-            });
-        });
-    };
+    //     // Apply borders
+    //     sheet.eachRow((row) => {
+    //         row.eachCell((cell) => {
+    //             cell.border = {
+    //                 top: { style: 'thin' },
+    //                 left: { style: 'thin' },
+    //                 bottom: { style: 'thin' },
+    //                 right: { style: 'thin' }
+    //             };
+    //         });
+    //     });
+    // };
 
-    // Create and style sheets
-    createStyledSheet('Post Analytics', MOCK_DATA);
-    createStyledSheet('Locations', MOCK_LINKEDIN_DATA.locations);
-    createStyledSheet('Industries', MOCK_LINKEDIN_DATA.industries);
-    createStyledSheet('Company Sizes', MOCK_LINKEDIN_DATA.companySizes);
-    createStyledSheet('Job Titles', MOCK_LINKEDIN_DATA.jobTitles);
+    // // Create and style sheets
+    // createStyledSheet('Post Analytics', MOCK_DATA);
+    // createStyledSheet('Locations', MOCK_LINKEDIN_DATA.locations);
+    // createStyledSheet('Industries', MOCK_LINKEDIN_DATA.industries);
+    // createStyledSheet('Company Sizes', MOCK_LINKEDIN_DATA.companySizes);
+    // createStyledSheet('Job Titles', MOCK_LINKEDIN_DATA.jobTitles);
 
-    // Save the file
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Styled_Analytics_Report.xlsx';
-    link.click();
-};
+    // // Save the file
+    // const buffer = await workbook.xlsx.writeBuffer();
+    // const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    // const link = document.createElement('a');
+    // link.href = URL.createObjectURL(blob);
+    // link.download = 'Styled_Analytics_Report.xlsx';
+    // link.click();
+
+  
+  };
 
   const exportToPDF = () => {
     const doc = new jsPDF();

@@ -10,6 +10,7 @@ import { supabase } from "../lib/supabase";
 // import { toast } from "react-hot-toast";
 // import { getUserEmailNotification } from "../services/userService";
 const AuthContext = createContext(null);
+import { getWorkspaceByAccountId } from "../services/workspaceServices";
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,6 +19,8 @@ export function AuthProvider({ children }) {
   const [currentUserUsers, setCurrentUserUsers] = useState([]);
   const [currentUserTeams, setCurrentUserTeams] = useState([]);
   const [currentUserChannels, setCurrentUserChannels] = useState([]);
+  const [workSpaceNotCreated, setWorkSpaceNotCreated] = useState(false);
+  const [workSpace , setWorkSpace] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const getDataAndToken = async () => {
@@ -70,20 +73,31 @@ export function AuthProvider({ children }) {
           userName: `${firstNameClean}_${lastNameClean}`,
         };
       });
-      console.log("after updating users: ", updatedUsers);
+      
+      const { error, workspace } = await getWorkspaceByAccountId(
+        apiResponse.userInfo.accountId
+      );
+      if (!workspace && error?.code === "PGRST116") {
+        setWorkSpaceNotCreated(true);
+      } else {
+        setWorkSpaceNotCreated(false);
+        setWorkSpace(workspace);
+      }
+
       setCurrentUserUsers(updatedUsers);
-      setCurrentUserChannels(apiResponse.userChannels);
+      setCurrentUserChannels(apiResponse.userChannels)
       setIsAuthenticated(true);
       setIsLoading(false);
+
     } else {
-      console.error("Failed to generate JWT");
+      jwtResponse.status === 403 ? console.error("Access forbidden: You do not have admin privileges.") :   console.error("Failed to generate JWT");
       setIsLoading(false);
     }
   };
 
   // const getToken = async () => {
   //   try {
-  //     // const apiResponse = await fetchSocialHubDataAndCallBackend();
+  //     const apiResponse = await fetchSocialHubDataAndCallBackend();
   //     console.log("from jwt and all data production: ", apiResponse);
 
   //     const token = apiResponse.userInfo.sbToken;
@@ -191,6 +205,10 @@ export function AuthProvider({ children }) {
         currentUserUsers,
         currentUserTeams,
         currentUserChannels,
+        workSpaceNotCreated,
+        setWorkSpaceNotCreated,
+        workSpace,
+        setWorkSpace,
       }}
     >
       {children}

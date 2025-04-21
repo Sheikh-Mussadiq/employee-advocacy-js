@@ -21,10 +21,11 @@ import LoadingScreen from "./components/LoadingScreen";
 import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import Login from "./pages/Login";
+import WorkspaceConfig from "./pages/WorkspaceConfig";
 
 function AppContent() {
   const { markAsRead } = useNotifications();
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, currentUser, workSpaceNotCreated } = useAuth();
 
   useEffect(() => {
     const path = window.location.pathname.substring(1) || "news";
@@ -36,13 +37,18 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/loading" replace />;
+    return <Navigate to="/login" replace />;
+  }
+
+  // New workspace redirect logic
+  if (isAuthenticated && currentUser?.role === "admin" && workSpaceNotCreated) {
+    return <WorkspaceConfig />;
   }
 
   return (
     <MainLayout>
       <Routes>
-        <Route path="/" element={<News />} />
+        <Route path="/" element={<Navigate to="/news" replace />} />
         <Route path="/news" element={<News />} />
         <Route path="/colleagues" element={<ColleaguesFeed />} />
         <Route path="/channels/:section" element={<ChannelFeed />} />
@@ -67,7 +73,7 @@ const ProtectedLoginRoute = () => {
     return <Navigate to="/news" replace />;
   }
 
-  return isDevelopment ? <Login /> : <LoginPage />;
+  return isDevelopment ? <LoginPage /> : <Login />;
 };
 
 export default function App() {

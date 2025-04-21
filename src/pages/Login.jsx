@@ -26,7 +26,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-design-white to-design-greyBG">
+    // <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-design-white to-design-greyBG">
+    <div className="h-screen relative overflow-hidden bg-black">
+
       {/* Lamp Demo Background */}
       <div className="absolute inset-0 w-full h-full z-0">
         <LampDemo />
