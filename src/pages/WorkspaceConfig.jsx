@@ -145,7 +145,7 @@ function WorkspaceConfig() {
 
       setWorkSpace(workspace);
       setWorkSpaceNotCreated(false);
-      navigate('/settings'); // Redirect to dashboard or appropriate page
+      navigate('/advocacy-settings'); // Redirect to dashboard or appropriate page
     } catch (error) {
       console.error('Error creating workspace:', error);
       toast.error('Failed to create workspace: ' + error.message);
