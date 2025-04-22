@@ -113,7 +113,7 @@ export default function Analytics() {
     new Date(),
   ]);
   const [startDate, endDate] = dateRange;
-  const { authUser , currentUser} = useAuth();
+  const { authUser , currentUser, workSpace} = useAuth();
 
   const kpiData = {
     labels: MOCK_DATA.slice(0, 30).map(item => item.date),
@@ -239,6 +239,23 @@ export default function Analytics() {
     // link.href = URL.createObjectURL(blob);
     // link.download = 'Styled_Analytics_Report.xlsx';
     // link.click();
+    try {
+      const { data, error } = await supabase
+        .from('channels')
+        .upsert([
+          {
+            name: 'Mussadiqs Channel',
+            status: false,
+            feedslink: 'https://example.com/feed',
+            // workspace_id: workSpace.id
+          }
+        ])
+        .eq('id', '92be1357-6a1b-4058-96f7-dec025ac1fc4');
+      if (error) throw error;
+      console.log('Channel inserted successfully:', data);
+    } catch (error) {
+      console.error('Error inserting channel:', error.message);
+    }
 
   
   };

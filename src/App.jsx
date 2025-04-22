@@ -8,6 +8,7 @@ import {
 import News from "./pages/News";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
+import AdvocacySettings from "./pages/AdvocacySettings";
 import Analytics from "./pages/Analytics";
 import Tutorial from "./pages/Tutorial";
 import ChannelFeed from "./pages/ChannelFeed";
@@ -55,6 +56,7 @@ function AppContent() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/advocacy-settings" element={<AdvocacySettings />} />
         <Route path="/help" element={<Tutorial />} />
       </Routes>
     </MainLayout>

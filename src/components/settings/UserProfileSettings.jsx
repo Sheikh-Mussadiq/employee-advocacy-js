@@ -11,7 +11,7 @@ const MOCK_USER = {
   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e'
 };
 
-export default function UserProfileSettings({ onClose }) {
+export default function UserProfileSettings({ onClose, isAdmin }) {
   const navigate = useNavigate();
 
   const handleNavigate = (path) => {
@@ -79,6 +79,17 @@ export default function UserProfileSettings({ onClose }) {
             Privacy Settings
             </div>
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => handleNavigate('/advocacy-settings')}
+              className="w-full text-left px-4 py-2 text-design-black hover:bg-design-greyBG rounded-lg transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <SettingsIcon className="w-5 h-5 text-design-primaryGrey" />
+              Advocacy Settings
+              </div>
+            </button>
+          )}
         </div>
 
         <div className="border-t pt-4">

@@ -5,6 +5,7 @@ import Sidebar from '../Sidebar';
 import FloatingSearch from '../FloatingSearch';
 import TopContributors from '../news/TopContributors';
 import CompanyNews from '../news/CompanyNews';
+import CustomToaster from '../ui/CustomToaster';
 
 export default function MainLayout({ children }) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -65,6 +66,7 @@ export default function MainLayout({ children }) {
       </div>
 
       <FloatingSearch navigate={navigate} />
+      <CustomToaster />
     </div>
   );
 }

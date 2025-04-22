@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import CustomToaster from '../components/ui/CustomToaster';
 import {useAuth} from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 function WorkspaceConfig() {
   const [workspaceName, setWorkspaceName] = useState('');
@@ -131,6 +132,17 @@ function WorkspaceConfig() {
       if (workspaceError) throw new Error(`Workspace creation failed: ${workspaceError.message}`);
       
       toast.success('Workspace created successfully!');
+      // Update the user's workspace_id in the users table
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({ workspace_id: workspace.id })
+        .eq('id', authUser.id);
+
+      if (userUpdateError) {
+        console.error('Error updating user workspace:', userUpdateError);
+        toast.error('Failed to update user workspace');
+      }
+
       setWorkSpace(workspace);
       setWorkSpaceNotCreated(false);
       navigate('/settings'); // Redirect to dashboard or appropriate page

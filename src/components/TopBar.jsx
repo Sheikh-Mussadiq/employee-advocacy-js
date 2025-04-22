@@ -4,6 +4,7 @@ import { Bell, HelpCircle, Search, Menu, X } from 'lucide-react';
 import NotificationsPanel from './notifications/NotificationsPanel';
 import UserProfileSettings from './settings/UserProfileSettings';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -12,6 +13,8 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'Admin';
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -105,7 +108,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
               className="w-8 h-8 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
             />
             <span className="hidden sm:inline text-sm font-medium text-design-black">John Doe</span>
-            {isProfileOpen && <UserProfileSettings onClose={() => setIsProfileOpen(false)} />}
+            {isProfileOpen && <UserProfileSettings onClose={() => setIsProfileOpen(false)} isAdmin={isAdmin} />}
           </motion.button>
         </div>
       </div>
