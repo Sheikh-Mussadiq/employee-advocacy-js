@@ -8,9 +8,9 @@ import React, {
 // import { fetchSocialHubDataAndCallBackend } from "../services/socialhubAuth";
 import { supabase } from "../lib/supabase";
 // import { toast } from "react-hot-toast";
-// import { getUserEmailNotification } from "../services/userService";
 const AuthContext = createContext(null);
 import { getWorkspaceByAccountId } from "../services/workspaceServices";
+import { getChannelsByWorkspaceId } from "../services/newsFeedsChannelServices";
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -21,6 +21,7 @@ export function AuthProvider({ children }) {
   const [currentUserChannels, setCurrentUserChannels] = useState([]);
   const [workSpaceNotCreated, setWorkSpaceNotCreated] = useState(false);
   const [workSpace , setWorkSpace] = useState(null);
+  const [feedsChannels, setFeedsChannels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const getDataAndToken = async () => {
@@ -82,6 +83,13 @@ export function AuthProvider({ children }) {
       } else {
         setWorkSpaceNotCreated(false);
         setWorkSpace(workspace);
+          
+        const channels = await getChannelsByWorkspaceId(workspace.id);
+        if (channels) {
+          setFeedsChannels(channels);
+        } else {
+          console.error("Error fetching channels for workspace:", error);
+        }
       }
 
       setCurrentUserUsers(updatedUsers);
@@ -209,6 +217,8 @@ export function AuthProvider({ children }) {
         setWorkSpaceNotCreated,
         workSpace,
         setWorkSpace,
+        feedsChannels,
+        setFeedsChannels,
       }}
     >
       {children}

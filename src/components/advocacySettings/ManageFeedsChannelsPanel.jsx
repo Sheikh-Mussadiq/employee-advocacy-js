@@ -14,14 +14,14 @@ const mockChannels = [
   { id: 3, name: "Engineering Channel", status: "Active", feedLink: "https://engineering.company.com/feed" },
 ]
 
-export default function ManageFeedsChannelsPanel({feedChannels}) {
+export default function ManageFeedsChannelsPanel() {
   const [channels, setChannels] = useState(mockChannels)
   const [editingChannelId, setEditingChannelId] = useState(null)
   const [editingLink, setEditingLink] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selected, setSelected] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { workSpace } = useAuth()
+  const { workSpace, feedChannels } = useAuth()
 
   const filteredChannels = channels.filter((ch) => ch.name.toLowerCase().includes(searchTerm.toLowerCase()))
 

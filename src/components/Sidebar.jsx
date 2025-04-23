@@ -14,7 +14,8 @@ import {
   Briefcase,
 } from "lucide-react";
 import { useNotifications } from "../context/NotificationContext";
-
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 export default function Sidebar({
   isOpen,
   onClose,
@@ -25,6 +26,8 @@ export default function Sidebar({
   const [isChannelsExpanded, setIsChannelsExpanded] = useState(true);
   const { unreadCounts, getChannelsCount } = useNotifications();
   const totalChannelsCount = getChannelsCount();
+  const { currentUser, feedsChannels } = useAuth();
+  
 
   const channelsSubItems = [
     { id: "sales", icon: DollarSign, label: "Sales" },
@@ -34,13 +37,34 @@ export default function Sidebar({
   ];
 
   const menuItems = [
-    {
-      id: "news",
-      icon: Newspaper,
-      label: "News",
-      hasSubmenu: false,
-      unreadCount: unreadCounts.news || 0,
+    feedsChannels.length > 0 && {
+      id: "news_feeds",
+      icon: Hash,
+      label: "News Feeds",
+      hasSubmenu: true,
+      subItems: feedsChannels.map((channel) => ({
+        id: channel.id,
+        icon: Hash,
+        label: channel.name,
+      })),
+      isExpanded: isChannelsExpanded,
+      toggleExpanded: () => setIsChannelsExpanded(!isChannelsExpanded),
+      // totalUnread: totalChannelsCount,
     },
+    // {
+    //   id: "settings",
+    //   icon: Settings,
+    //   label: "Settings",
+    //   hasSubmenu: false,
+    //   unreadCount: 0,
+    // },
+    // {
+    //   id: "news",
+    //   icon: Newspaper,
+    //   label: "News",
+    //   hasSubmenu: false,
+    //   unreadCount: unreadCounts.news || 0,
+    // },
     {
       id: "colleagues",
       icon: Users,
@@ -72,7 +96,7 @@ export default function Sidebar({
       hasSubmenu: false,
       unreadCount: 0,
     },
-  ];
+  ].filter(Boolean); // Filter out falsy values
 
   const handleTabChange = (tabId) => {
     if (tabId.startsWith("channels-")) {
