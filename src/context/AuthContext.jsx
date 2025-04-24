@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   const [currentUserTeams, setCurrentUserTeams] = useState([]);
   const [currentUserChannels, setCurrentUserChannels] = useState([]);
   const [workSpaceNotCreated, setWorkSpaceNotCreated] = useState(false);
-  const [workSpace , setWorkSpace] = useState(null);
+  const [workSpace, setWorkSpace] = useState(null);
   const [feedsChannels, setFeedsChannels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,14 +48,17 @@ export function AuthProvider({ children }) {
       });
 
       // Set Supabase authenticated user from API response.
-      const userData = await supabase.auth.getUser();
-      setAuthUser(userData.data.user);
+      const {
+        data: { user },
+        error: getUserError,
+      } = await supabase.auth.getUser();
+      if (getUserError) {
+        console.error("getUser error:", getUserError);
+        return;
+      }
 
-      // Set Supabase authenticated user from API response. Not working for now
-      // const userData = apiResponse.userInfo.sbUser;
-      // setAuthUser(userData);
+      setAuthUser(user);
 
-      
       setCurrentUser({
         ...apiResponse.userInfo,
         userName: `${apiResponse.userInfo.firstName.replace(
@@ -74,43 +77,31 @@ export function AuthProvider({ children }) {
           userName: `${firstNameClean}_${lastNameClean}`,
         };
       });
-      
-      const { error, workspace } = await getWorkspaceByAccountId(
+
+      const { error, workspace: ws } = await getWorkspaceByAccountId(
         apiResponse.userInfo.accountId
       );
-      if (!workspace && error?.code === "PGRST116") {
-        setWorkSpaceNotCreated(true);
-      } else {
-        setWorkSpaceNotCreated(false);
-        setWorkSpace(workspace);
-        if (authUser && workspace) {
-          // Get the current user data from Supabase to check workspace_id
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('workspace_id')
-            .eq('id', authUser.id)
-            .single();
-            
-          if (!userError) {
-            // If workspace_id is missing or different from current workspace.id
-            if (!userData.workspace_id || userData.workspace_id !== workspace.id) {
-              // Update the user's record with the workspace_id
-              const { error: updateError } = await supabase
-                .from('users')
-                .update({ workspace_id: workspace.id })
-                .eq('id', authUser.id);
-                
-              if (updateError) {
-                console.error('Error updating user workspace ID:', updateError);
-              } else {
-                console.log('User workspace ID updated successfully');
-              }
-            }
-          } else {
-            console.error('Error checking user workspace ID:', userError);
+      if (ws) {
+        setWorkSpace(ws);
+        // now you know `user` and `ws` exist
+        const { data: dbUser, error: userError } = await supabase
+          .from("users")
+          .select("workspace_id")
+          .eq("id", user.id)
+          .single();
+      
+        if (!userError) {
+          if (!dbUser.workspace_id || dbUser.workspace_id !== ws.id) {
+            const { error: updateError } = await supabase
+              .from("users")
+              .update({ workspace_id: ws.id })
+              .eq("id", user.id);
+            if (updateError) console.error("Error updating:", updateError);
           }
+        } else {
+          console.error("Error fetching workspace_id:", userError);
         }
-        const channels = await getChannelsByWorkspaceId(workspace.id);
+        const channels = await getChannelsByWorkspaceId(ws.id);
         if (channels) {
           setFeedsChannels(channels);
         } else {
@@ -119,12 +110,13 @@ export function AuthProvider({ children }) {
       }
 
       setCurrentUserUsers(updatedUsers);
-      setCurrentUserChannels(apiResponse.userChannels)
+      setCurrentUserChannels(apiResponse.userChannels);
       setIsAuthenticated(true);
       setIsLoading(false);
-
     } else {
-      jwtResponse.status === 403 ? console.error("Access forbidden: You do not have admin privileges.") :   console.error("Failed to generate JWT");
+      jwtResponse.status === 403
+        ? console.error("Access forbidden: You do not have admin privileges.")
+        : console.error("Failed to generate JWT");
       setIsLoading(false);
     }
   };
