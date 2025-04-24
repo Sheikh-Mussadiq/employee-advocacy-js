@@ -83,7 +83,33 @@ export function AuthProvider({ children }) {
       } else {
         setWorkSpaceNotCreated(false);
         setWorkSpace(workspace);
-          
+        if (authUser && workspace) {
+          // Get the current user data from Supabase to check workspace_id
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('workspace_id')
+            .eq('id', authUser.id)
+            .single();
+            
+          if (!userError) {
+            // If workspace_id is missing or different from current workspace.id
+            if (!userData.workspace_id || userData.workspace_id !== workspace.id) {
+              // Update the user's record with the workspace_id
+              const { error: updateError } = await supabase
+                .from('users')
+                .update({ workspace_id: workspace.id })
+                .eq('id', authUser.id);
+                
+              if (updateError) {
+                console.error('Error updating user workspace ID:', updateError);
+              } else {
+                console.log('User workspace ID updated successfully');
+              }
+            }
+          } else {
+            console.error('Error checking user workspace ID:', userError);
+          }
+        }
         const channels = await getChannelsByWorkspaceId(workspace.id);
         if (channels) {
           setFeedsChannels(channels);

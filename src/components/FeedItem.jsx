@@ -123,9 +123,9 @@ export default function FeedItem({ item }) {
         </div>
 
         <div className="flex items-center text-sm text-gray-500 mb-4">
-          <span>{item.creator || "Unknown author"}</span>
+          <span>{item.author || "Unknown author"}</span>
           <span className="mx-2">•</span>
-          <span>{formatDate(item.isoDate)}</span>
+          <span>{formatDate(item.pubDate)}</span>
         </div>
 
         <div

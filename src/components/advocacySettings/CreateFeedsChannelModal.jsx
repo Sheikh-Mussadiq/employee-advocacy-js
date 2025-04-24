@@ -99,7 +99,7 @@ export default function CreateFeedsChannelModal({
             workspace_id: workspaceId,
             feeds: {
               ...data,        
-              ...feedNames,     
+              feedNames,     
             },
           },
         ])
