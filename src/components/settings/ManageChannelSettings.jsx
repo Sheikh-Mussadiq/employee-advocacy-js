@@ -1,19 +1,31 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { Search, Copy, Info, Pencil, Check, X } from 'lucide-react';
 
-const mockChannels = [
-  { id: 1, name: 'Marketing Channel', status: 'Active', feedLink: 'https://marketing.company.com/feed' },
-  { id: 2, name: 'Sales Channel', status: 'Inactive', feedLink: 'https://sales.company.com/feed' },
-  { id: 3, name: 'Engineering Channel', status: 'Active', feedLink: 'https://engineering.company.com/feed' },
-];
+// Removed mock channels as we'll use real data from the API
 
 export default function ManageChannelSettings() {
-  const [channels, setChannels] = useState(mockChannels);
+  const { feedsChannels } = useAuth();
+  const [channels, setChannels] = useState([]);
   const [editingChannelId, setEditingChannelId] = useState(null);
   const [editingLink, setEditingLink] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selected, setSelected] = useState([]);
+
+  // Transform feedsChannels into the format expected by the component
+  useEffect(() => {
+    if (feedsChannels && feedsChannels.length > 0) {
+      const formattedChannels = feedsChannels.map(channel => ({
+        id: channel.id,
+        name: channel.name,
+        status: 'Active', // Default status, you might want to store this in the database
+        feedLink: channel.feeds?.data?.feedNames?.[0]?.rss_feed_url || 
+                 (channel.feeds?.data?.rss_feed_url ? channel.feeds.data.rss_feed_url : '')
+      }));
+      setChannels(formattedChannels);
+    }
+  }, [feedsChannels]);
 
   const filteredChannels = useMemo(() =>
     channels.filter(ch => ch.name.toLowerCase().includes(searchTerm.toLowerCase())),

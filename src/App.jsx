@@ -51,6 +51,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Navigate to="/news" replace />} />
         <Route path="/news" element={<News />} />
+        <Route path="/news_feeds/:channelId" element={<News />} />
         <Route path="/colleagues" element={<ColleaguesFeed />} />
         <Route path="/channels/:section" element={<ChannelFeed />} />
         <Route path="/leaderboard" element={<Leaderboard />} />

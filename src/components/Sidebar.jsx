@@ -24,6 +24,7 @@ export default function Sidebar({
   currentPath,
 }) {
   const [isChannelsExpanded, setIsChannelsExpanded] = useState(true);
+  const [isNewsFeedsExpanded, setIsNewsFeedsExpanded] = useState(true);
   const { unreadCounts, getChannelsCount } = useNotifications();
   const totalChannelsCount = getChannelsCount();
   const { currentUser, feedsChannels } = useAuth();
@@ -47,8 +48,8 @@ export default function Sidebar({
         icon: Hash,
         label: channel.name,
       })),
-      isExpanded: isChannelsExpanded,
-      toggleExpanded: () => setIsChannelsExpanded(!isChannelsExpanded),
+      isExpanded: isNewsFeedsExpanded,
+      toggleExpanded: () => setIsNewsFeedsExpanded(!isNewsFeedsExpanded),
       // totalUnread: totalChannelsCount,
     },
     // {
@@ -102,6 +103,9 @@ export default function Sidebar({
     if (tabId.startsWith("channels-")) {
       const section = tabId.replace("channels-", "");
       navigate(`/channels/${section}`);
+    } else if (tabId.startsWith("news_feeds-")) {
+      const channelId = tabId.replace("news_feeds-", "");
+      navigate(`/news_feeds/${channelId}`);
     } else {
       navigate(`/${tabId}`);
     }

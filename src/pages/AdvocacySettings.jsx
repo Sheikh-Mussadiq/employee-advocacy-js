@@ -37,7 +37,6 @@
 import { motion } from "framer-motion"
 import { useAuth } from "../context/AuthContext"
 import { Navigate } from "react-router-dom"
-import ManageChannelsPanel from "../components/advocacySettings/ManageChannelsPanel"
 import ManageFeedsChannelsPanel from "../components/advocacySettings/ManageFeedsChannelsPanel"
 import LeaderboardAnnouncementsSettings from "../components/advocacySettings/LeaderboardAnnouncementsSettings"
 
@@ -54,8 +53,6 @@ export default function AdvocacySettings() {
         <p className="text-design-primaryGrey mt-1">Manage advocacy features for your organization</p>
       </motion.div>
       <ManageFeedsChannelsPanel />
-
-      <ManageChannelsPanel />
       <LeaderboardAnnouncementsSettings />
     </motion.div>
   )
