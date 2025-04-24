@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NewsFeed from "../components/news/NewsFeed";
 import { fetchRSSFeed } from "../utils/rss";
-import { DEFAULT_FEED_URL } from "../components/settings/RSSFeedSettings";
 import { useAuth } from "../context/AuthContext";
 import { getChannelById } from "../services/newsFeedsChannelServices";
 
 export default function News() {
   const { channelId } = useParams();
   const { feedsChannels } = useAuth();
+  const navigate = useNavigate();
   const [feed, setFeed] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [channelName, setChannelName] = useState("Company News");
+  const [channelName, setChannelName] = useState("News Feed");
 
   useEffect(() => {
     async function fetchChannelFeed() {
@@ -21,10 +21,17 @@ export default function News() {
       setError(null);
       
       try {
-        // If no channelId is provided, use the default feed
-        if (!channelId) {
-          fetchRSSFeed(DEFAULT_FEED_URL, setFeed, setIsLoading, setError);
-          setChannelName("Company News");
+        // If no channelId is provided but we have channels, auto-select the first one
+        if (!channelId && feedsChannels && feedsChannels.length > 0) {
+          const firstChannel = feedsChannels[0];
+          // Navigate to the first channel's feed
+          navigate(`/news_feeds/${firstChannel.id}`);
+          return; // The useEffect will run again with the new channelId
+        } else if (!channelId) {
+          // If there are no channels available
+          setError("No channels available. Please create a channel in the Advocacy Settings.");
+          setChannelName("News Feed");
+          setIsLoading(false);
           return;
         }
         
@@ -43,43 +50,21 @@ export default function News() {
         setChannelName(channel.name);
         
         // Get the RSS feed URL from the channel data
-        // The structure is channel -> feeds -> data -> feedNames -> rss_feed_url
-        if (channel.feeds && 
-            channel.feeds.data && 
-            channel.feeds.data.feedNames) {
-          
+        // The new structure is: channel -> feeds -> rss_feed_url
+        if (channel.feeds && channel.feeds.rss_feed_url) {
           try {
             // Extract the feed URL from the channel data structure
-            let feedUrl = DEFAULT_FEED_URL;
-            
-            // Handle array of feed names or object with rss_feed_url
-            if (Array.isArray(channel.feeds.data.feedNames) && channel.feeds.data.feedNames.length > 0) {
-              // If it's an array, find the first item with rss_feed_url
-              const feedItem = channel.feeds.data.feedNames.find(feed => feed.rss_feed_url);
-              if (feedItem && feedItem.rss_feed_url) {
-                feedUrl = feedItem.rss_feed_url;
-              }
-            } else if (typeof channel.feeds.data.feedNames === 'object') {
-              // If it's an object, check if it has rss_feed_url directly
-              if (channel.feeds.data.feedNames.rss_feed_url) {
-                feedUrl = channel.feeds.data.feedNames.rss_feed_url;
-              }
-            }
-            
-            // If we couldn't find the URL in feedNames, check if it's directly in the data
-            if (feedUrl === DEFAULT_FEED_URL && channel.feeds.data.rss_feed_url) {
-              feedUrl = channel.feeds.data.rss_feed_url;
-            }
-            
+            const feedUrl = channel.feeds.rss_feed_url;
             fetchRSSFeed(feedUrl, setFeed, setIsLoading, setError);
           } catch (err) {
             console.error("Error extracting feed URL:", err);
-            // If there's an error extracting the URL, use the default feed
-            fetchRSSFeed(DEFAULT_FEED_URL, setFeed, setIsLoading, setError);
+            setError(`Unable to load feed for ${channel.name}. Please try again later.`);
+            setIsLoading(false);
           }
         } else {
-          // If no feed URL is found, use the default feed
-          fetchRSSFeed(DEFAULT_FEED_URL, setFeed, setIsLoading, setError);
+          // If no feed URL is found, show an empty state error
+          setError(`No feed URL found for ${channel.name}. Please configure a feed URL in the channel settings.`);
+          setIsLoading(false);
         }
       } catch (err) {
         console.error("Error fetching channel feed:", err);

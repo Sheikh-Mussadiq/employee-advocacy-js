@@ -19,13 +19,13 @@ export default function ManageChannelSettings() {
       const formattedChannels = feedsChannels.map(channel => ({
         id: channel.id,
         name: channel.name,
-        status: 'Active', // Default status, you might want to store this in the database
-        feedLink: channel.feeds?.data?.feedNames?.[0]?.rss_feed_url || 
-                 (channel.feeds?.data?.rss_feed_url ? channel.feeds.data.rss_feed_url : '')
+        status: channel.status ? 'Active' : 'Inactive', // Use the status from the API
+        feedLink: channel.feeds?.rss_feed_url || ''
       }));
       setChannels(formattedChannels);
     }
   }, [feedsChannels]);
+
 
   const filteredChannels = useMemo(() =>
     channels.filter(ch => ch.name.toLowerCase().includes(searchTerm.toLowerCase())),

@@ -16,16 +16,24 @@ export default function FeedList({ feed, isLoading, error }) {
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-500">Error loading feed: {error.message}</p>
+      <div className="text-center py-8 px-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-medium text-red-800 mb-2">Unable to Load Feed</h3>
+          <p className="text-red-600">
+            {typeof error === 'string' ? error : error.message || 'An unknown error occurred'}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (!feed || !feed.items || feed.items.length === 0) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">No feed items available</p>
+      <div className="text-center py-8 px-4">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-medium text-gray-800 mb-2">No Content Available</h3>
+          <p className="text-gray-600">There are no feed items to display at this time.</p>
+        </div>
       </div>
     );
   }

@@ -18,6 +18,7 @@ export default function ManageFeedsChannelsPanel() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selected, setSelected] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [actionEnabledId, setActionEnabledId] = useState(null)
   // Removed duplicate useAuth call
 
   // Transform feedsChannels into the format expected by the component
@@ -26,9 +27,8 @@ export default function ManageFeedsChannelsPanel() {
       const formattedChannels = feedsChannels.map(channel => ({
         id: channel.id,
         name: channel.name,
-        status: "Active", // Default status, you might want to store this in the database
-        feedLink: channel.feeds?.data?.feedNames?.[0]?.rss_feed_url || 
-                 (channel.feeds?.data?.rss_feed_url ? channel.feeds.data.rss_feed_url : "")
+        status: channel.status ? "Active" : "Inactive", // Use the status from the API
+        feedLink: channel.feeds?.rss_feed_url || ""
       }));
       setChannels(formattedChannels);
     }
@@ -39,27 +39,34 @@ export default function ManageFeedsChannelsPanel() {
   const toggleSelect = (id) => setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
   const toggleSelectAll = () =>
     setSelected((prev) => (prev.length === filteredChannels.length ? [] : filteredChannels.map((ch) => ch.id)))
-  const bulkToggleStatus = () => {
-    setChannels((prev) =>
-      prev.map((ch) =>
-        selected.includes(ch.id) ? { ...ch, status: ch.status === "Active" ? "Inactive" : "Active" } : ch,
-      ),
-    )
-    toast.success("Bulk status updated")
+  const bulkDeleteChannels = () => {
+    // Get the names of channels to be deleted for the success message
+    const deletedChannelNames = channels
+      .filter(ch => selected.includes(ch.id))
+      .map(ch => ch.name)
+      .join(", ");
+    
+    // Filter out the selected channels
+    setChannels((prev) => prev.filter(ch => !selected.includes(ch.id)))
+    
+    // Show success message
+    toast.success(`Deleted channels: ${deletedChannelNames}`)
     setSelected([])
   }
 
   const toggleChannelStatus = (id) => {
-    setChannels((prev) =>
-      prev.map((channel) => {
-        if (channel.id === id) {
-          const updated = { ...channel, status: channel.status === "Active" ? "Inactive" : "Active" }
-          toast.success(`${updated.name} ${updated.status === "Active" ? "activated" : "deactivated"}`)
-          return updated
-        }
-        return channel
-      }),
-    )
+    if (actionEnabledId === id) {
+      setChannels((prev) =>
+        prev.map((channel) => {
+          if (channel.id === id) {
+            const updated = { ...channel, status: channel.status === "Active" ? "Inactive" : "Active" }
+            toast.success(`${updated.name} ${updated.status === "Active" ? "activated" : "deactivated"}`)
+            return updated
+          }
+          return channel
+        }),
+      )
+    }
   }
 
   const startEdit = (id, link) => {
@@ -69,6 +76,7 @@ export default function ManageFeedsChannelsPanel() {
   const cancelEdit = () => {
     setEditingChannelId(null)
     setEditingLink("")
+    setActionEnabledId(null)
   }
   const saveEdit = (id) => {
     const channelName = channels.find((ch) => ch.id === id)?.name
@@ -76,6 +84,11 @@ export default function ManageFeedsChannelsPanel() {
     toast.success(`${channelName} feed link updated`)
     setEditingChannelId(null)
     setEditingLink("")
+    setActionEnabledId(null)
+  }
+
+  const toggleActionEnabled = (id) => {
+    setActionEnabledId(actionEnabledId === id ? null : id)
   }
 
   const isValidLink = /^https?:\/\/\S+$/.test(editingLink)
@@ -125,8 +138,12 @@ export default function ManageFeedsChannelsPanel() {
           </div>
           {selected.length > 0 && (
             <div className="flex items-center space-x-2">
-              <button onClick={bulkToggleStatus} className="btn-primary btn-sm">
-                Toggle Status
+              <button 
+                onClick={bulkDeleteChannels} 
+                className="btn-sm flex items-center gap-1 bg-semantic-error text-white hover:bg-red-600 transition-colors"
+              >
+                <X className="w-3 h-3" />
+                Delete Channels
               </button>
               <span className="text-sm text-design-primaryGrey">{selected.length} selected</span>
             </div>
@@ -177,14 +194,9 @@ export default function ManageFeedsChannelsPanel() {
                       </div>
                     ) : (
                       <div className="flex items-center space-x-2">
-                        <a
-                          href={ch.feedLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="truncate max-w-xs text-sm text-design-primaryPurple underline"
-                        >
+                        <span className="truncate max-w-xs text-sm text-design-primaryGrey">
                           {ch.feedLink}
-                        </a>
+                        </span>
                         <Copy
                           className="w-4 h-4 text-design-primaryGrey hover:text-design-black cursor-pointer"
                           onClick={() => {
@@ -199,7 +211,7 @@ export default function ManageFeedsChannelsPanel() {
                   <td className="p-2">
                     <label
                       htmlFor={`toggle-${ch.id}`}
-                      className="inline-flex relative items-center cursor-pointer mr-2"
+                      className={`inline-flex relative items-center ${actionEnabledId === ch.id ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'} mr-2`}
                     >
                       <input
                         id={`toggle-${ch.id}`}
@@ -207,6 +219,7 @@ export default function ManageFeedsChannelsPanel() {
                         className="sr-only peer"
                         checked={ch.status === "Active"}
                         onChange={() => toggleChannelStatus(ch.id)}
+                        disabled={actionEnabledId !== ch.id}
                       />
                       <div className="w-8 h-4 bg-design-greyBG rounded-full peer-focus:ring-2 peer-focus:ring-primaryPurple peer-checked:bg-semantic-success relative after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:border-design-greyOutlines after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4"></div>
                     </label>
@@ -226,11 +239,24 @@ export default function ManageFeedsChannelsPanel() {
                           <X className="w-4 h-4 text-semantic-error" />
                         </button>
                       </>
+                    ) : actionEnabledId === ch.id ? (
+                      <>
+                        <button
+                          onClick={() => startEdit(ch.id, ch.feedLink)}
+                          className="p-1 rounded hover:bg-design-greyBG"
+                          aria-label="Edit"
+                        >
+                          <Pencil className="w-4 h-4 text-design-primaryGrey" />
+                        </button>
+                        <button onClick={() => setActionEnabledId(null)} className="p-1 rounded hover:bg-design-greyBG" aria-label="Cancel">
+                          <X className="w-4 h-4 text-semantic-error" />
+                        </button>
+                      </>
                     ) : (
                       <button
-                        onClick={() => startEdit(ch.id, ch.feedLink)}
+                        onClick={() => toggleActionEnabled(ch.id)}
                         className="p-1 rounded hover:bg-design-greyBG"
-                        aria-label="Edit"
+                        aria-label="Actions"
                       >
                         <Pencil className="w-4 h-4 text-design-primaryGrey" />
                       </button>

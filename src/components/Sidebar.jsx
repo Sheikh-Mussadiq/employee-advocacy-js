@@ -196,7 +196,8 @@ export default function Sidebar({
                           key={subId}
                           onClick={() => handleTabChange(`${id}-${subId}`)}
                           className={`w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors ${
-                            currentPath === `/channels/${subId}`
+                            (id === "channels" && currentPath === `/channels/${subId}`) ||
+                            (id === "news_feeds" && currentPath === `/news_feeds/${subId}`)
                               ? "bg-button-tertiary-fill text-button-primary-cta ring-1 ring-button-primary-cta/10"
                               : "text-design-primaryGrey hover:bg-design-greyBG hover:text-design-black"
                           }`}
