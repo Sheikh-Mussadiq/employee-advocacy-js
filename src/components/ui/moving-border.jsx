@@ -18,7 +18,7 @@ export function MovingBorderContainer({
   as: Component = "div",
   containerClassName,
   borderClassName,
-  duration,
+  duration = 2200,
   className,
   ...otherProps
 }) {
@@ -40,8 +40,8 @@ export function MovingBorderContainer({
         <MovingBorder duration={duration} rx="30%" ry="30%">
           <div
             className={cn(
-              "h-20 w-20 opacity-[0.8] bg-[radial-gradient(var(--sky-500)_40%,transparent_60%)]",
-              borderClassName
+              "h-20 w-20 opacity-[0.8]",
+              borderClassName || "bg-[radial-gradient(var(--purple-500,#6D28D9)_40%,transparent_60%)]"
             )}
           />
         </MovingBorder>
@@ -82,11 +82,11 @@ export const MovingBorder = ({
 
   const x = useTransform(
     progress,
-    (val) => pathRef.current?.getPointAtLength(val).x
+    (val) => pathRef.current?.getPointAtLength(val)?.x || 0
   );
   const y = useTransform(
     progress,
-    (val) => pathRef.current?.getPointAtLength(val).y
+    (val) => pathRef.current?.getPointAtLength(val)?.y || 0
   );
 
   const transform = useMotionTemplate`translateX(${x}px) translateY(${y}px) translateX(-50%) translateY(-50%)`;

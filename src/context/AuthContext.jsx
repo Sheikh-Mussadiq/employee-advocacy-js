@@ -81,7 +81,9 @@ export function AuthProvider({ children }) {
       const { error, workspace: ws } = await getWorkspaceByAccountId(
         apiResponse.userInfo.accountId
       );
-      if (ws) {
+      if (!ws && error?.code === "PGRST116") {
+        setWorkSpaceNotCreated(true);
+      } else {
         setWorkSpace(ws);
         // now you know `user` and `ws` exist
         const { data: dbUser, error: userError } = await supabase
@@ -99,6 +101,7 @@ export function AuthProvider({ children }) {
             if (updateError) console.error("Error updating:", updateError);
           }
         } else {
+          setWorkSpaceNotCreated(true);
           console.error("Error fetching workspace_id:", userError);
         }
         const channels = await getChannelsByWorkspaceId(ws.id);
@@ -177,6 +180,7 @@ export function AuthProvider({ children }) {
       getDataAndToken();
     } else {
       console.log("from production");
+      setIsLoading(false);
       // getToken();
     }
   }, []);
