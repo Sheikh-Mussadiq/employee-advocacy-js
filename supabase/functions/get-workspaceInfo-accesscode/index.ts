@@ -23,9 +23,9 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { headers: corsHeaders, status: 405 });
   }
   try {
-    const { access_token } = await req.json();
+    const { access_code } = await req.json();
 
-    if (!access_token) {
+    if (!access_code) {
       return new Response(
         JSON.stringify({ error: 'Access token is required' }),
         { headers: corsHeaders, status: 400 }
@@ -35,7 +35,7 @@ Deno.serve(async (req: Request) => {
     const { data, error } = await supabase
       .from('workspace')
       .select('id, name, description, img_path')
-      .eq('access_token', access_token)
+      .eq('access_code', access_code)
       .single();
 
     if (error) {
