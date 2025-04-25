@@ -194,7 +194,7 @@ Deno.serve(async (req: Request) => {
         throw new Error(`Feed creation failed: ${data?.message || JSON.stringify(data)}`);
       }
 
-      return new Response(JSON.stringify({ id: data.id, rss_feed_url: data.rss_feed_url }), {
+      return new Response(JSON.stringify({ id: data.id, rss_feed_url: data.rss_feed_url, type: "feed" }), {
         status: 200,
         headers: corsHeaders,
       });
@@ -252,6 +252,8 @@ Deno.serve(async (req: Request) => {
     return new Response(JSON.stringify({
       id: bundleData.id,
       rss_feed_url: bundleData.rss_feed_url,
+      type: "bundle",
+      feed_ids: bundleData.feeds
     }), {
       status: 200,
       headers: corsHeaders,

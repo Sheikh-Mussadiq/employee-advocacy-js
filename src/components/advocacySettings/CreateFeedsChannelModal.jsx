@@ -101,6 +101,8 @@ export default function CreateFeedsChannelModal({
               ...data,        
               feedNames,     
             },
+            type: data.type,
+            feed_ids: data?.feed_ids ? data.feed_ids : data.id,
           },
         ])
         .select()
