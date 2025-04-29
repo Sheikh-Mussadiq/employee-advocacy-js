@@ -3,9 +3,9 @@ import { supabase } from '../lib/supabase';
 export const getWorkspaceByAccountId = async (accountId) => {
   try {
     const { data, error } = await supabase
-      .from('workspace')
+      .from('workspace_with_access')
       .select('*')
-      .eq('account_id', accountId)
+      // .eq('account_id', accountId)
       .single();
 
     if (error) {

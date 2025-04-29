@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { LampDemo } from "../components/ui/LampDemo";
 import { LampContainer } from "../components/ui/LampContainer";
 import { useLocation } from "react-router-dom";
-
+import { useAuth } from "../context/AuthContext";
 import SocialHubLogo from "../assets/SocialHub logo.png";
 
 
@@ -66,10 +66,25 @@ export default function Login() {
 
   const handleLoginWithLinkedIn = async () => {
     try {
+      // Prepare query params to include workspace ID after successful login
+      let redirectTo = `${window.location.origin}/news`;
+      
+      // If we have the workspace info, include it in the redirect
+      if (workspaceInfo?.id) {
+        redirectTo = `${redirectTo}?workspace_id=${workspaceInfo.id}`;
+        if (location.search) {
+          // Preserve the access_code in the redirect
+          redirectTo = `${redirectTo}&${location.search.substring(1)}`;
+        }
+      } else if (location.search) {
+        // Just preserve the current query string (with access_code)
+        redirectTo = `${redirectTo}${location.search}`;
+      }
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "linkedin",
         options: {
-          redirectTo: `${window.location.origin}/news`,
+          redirectTo,
         },
       });
 
