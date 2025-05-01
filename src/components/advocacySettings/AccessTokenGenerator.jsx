@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { Copy, RefreshCw, Shield, Eye, EyeOff } from "lucide-react"
 import toast from "react-hot-toast"
 import { useAuth } from "../../context/AuthContext"
-import { updateWorkspace } from "../../services/workspaceServices"
+import { updateWorkspaceAccessCode } from "../../services/workspaceServices"
 
 export default function AccessTokenGenerator() {
   const { workSpace, setWorkSpace } = useAuth()
@@ -35,7 +35,7 @@ export default function AccessTokenGenerator() {
     
     try {
       // Generate a random string of characters (letters, numbers, and special chars)
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@$%&'
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
       const tokenLength = 32
       let token = ''
       
@@ -45,7 +45,7 @@ export default function AccessTokenGenerator() {
       }
       
       // Update the workspace with the new access code
-      const { error, workspace } = await updateWorkspace(workSpace.id, { access_code: token })
+      const { error } = await updateWorkspaceAccessCode(workSpace.id, token)
       
       if (error) {
         console.error("Error updating workspace access code:", error)
@@ -56,7 +56,10 @@ export default function AccessTokenGenerator() {
       
       // Update local state
       setAccessToken(token)
-      setWorkSpace(workspace) // Update the workspace in context
+      setWorkSpace({
+        ...workSpace,
+        access_code: token
+      })
       setIsGenerating(false)
       toast.success("New workspace access token generated and saved")
     } catch (err) {

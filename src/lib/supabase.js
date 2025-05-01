@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { createSupabaseProxy } from './supabaseProxy';
+// import { createSupabaseProxy } from './supabaseProxy';
 import { SUPABASE_CONFIG } from '../config/supabase';
 
 const supabaseClient = createClient(
@@ -22,10 +22,11 @@ if (import.meta.env.VITE_ENVIORNMENT === "development") {
       }
     }
   );
-} else {
-  console.log("Using proxied Supabase client");
-  supabase = createSupabaseProxy(supabaseClient);
 }
+//  else {
+//   console.log("Using proxied Supabase client");
+//   supabase = createSupabaseProxy(supabaseClient);
+// }
 
 // Export the selected client
 export { supabase };

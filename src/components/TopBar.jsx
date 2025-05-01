@@ -14,7 +14,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const profileRef = useRef(null);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const isAdmin = currentUser?.role === 'Admin';
+  const isAdmin = currentUser?.role === 'ADMIN';
 
   useEffect(() => {
     const handleClickOutside = (event) => {

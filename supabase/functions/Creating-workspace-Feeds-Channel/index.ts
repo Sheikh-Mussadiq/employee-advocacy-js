@@ -157,7 +157,7 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: 'User record not found' }), { headers: corsHeaders, status: 404 });
     }
 
-    if (userRecord.role !== 'Admin') {
+    if (userRecord.role !== 'ADMIN') {
       return new Response(JSON.stringify({ error: 'Forbidden: Admins only' }), { headers: corsHeaders, status: 403 });
     }
 

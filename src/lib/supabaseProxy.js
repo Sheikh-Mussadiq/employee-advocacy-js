@@ -278,23 +278,23 @@ export const createSupabaseProxy = (supabaseClient) => {
 
 // Create a proxied Supabase client.
 // Note: The global fetch passed here is the native fetch; our proxy functions override fetch for REST and Auth.
-export const createProxiedSupabaseClient = () => {
-  const client = createClient(
-    SUPABASE_CONFIG.url,
-    SUPABASE_CONFIG.anonKey,
-    {
-      auth: {
-        persistSession: true,
-        detectSessionInUrl: true,
-      },
-      global: {
-        fetch: fetch,
-      },
-    }
-  );
+// export const createProxiedSupabaseClient = () => {
+//   const client = createClient(
+//     SUPABASE_CONFIG.url,
+//     SUPABASE_CONFIG.anonKey,
+//     {
+//       auth: {
+//         persistSession: true,
+//         detectSessionInUrl: true,
+//       },
+//       global: {
+//         fetch: fetch,
+//       },
+//     }
+//   );
 
-  return createSupabaseProxy(client);
-};
+//   return createSupabaseProxy(client);
+// };
 
-// Export a singleton instance.
-export const supabase = createProxiedSupabaseClient();
+// // Export a singleton instance.
+// export const supabase = createProxiedSupabaseClient();

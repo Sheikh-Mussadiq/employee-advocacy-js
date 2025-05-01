@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 export const createChannel = async (channelData) => {
   try {
     const { data, error } = await supabase
-      .from('channels')
+      .from('feedschannels')
       .insert([channelData])
       .select();
     
@@ -16,17 +16,17 @@ export const createChannel = async (channelData) => {
   }
 };
 
-// Get all channels
+// Get all feedschannels
 export const getAllChannels = async () => {
   try {
     const { data, error } = await supabase
-      .from('channels')
+      .from('feedschannels')
       .select('*');
     
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error fetching channels:', error);
+    console.error('Error fetching feedschannels:', error);
     throw error;
   }
 };
@@ -35,7 +35,7 @@ export const getAllChannels = async () => {
 export const getChannelById = async (id) => {
   try {
     const { data, error } = await supabase
-      .from('channels')
+      .from('feedschannels')
       .select('*')
       .eq('id', id)
       .single();
@@ -48,18 +48,18 @@ export const getChannelById = async (id) => {
   }
 };
 
-// Get channels by workspace ID
+// Get feedschannels by workspace ID
 export const getChannelsByWorkspaceId = async (workspaceId) => {
   try {
     const { data, error } = await supabase
-      .from('channels')
+      .from('feedschannels')
       .select('*')
       .eq('workspace_id', workspaceId);
     
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Error fetching channels by workspace ID:', error);
+    console.error('Error fetching feedschannels by workspace ID:', error);
     throw error;
   }
 };
@@ -68,7 +68,7 @@ export const getChannelsByWorkspaceId = async (workspaceId) => {
 export const updateChannel = async (id, updates) => {
   try {
     const { data, error } = await supabase
-      .from('channels')
+      .from('feedschannels')
       .update({
         ...updates,
         updated_at: new Date().toISOString()
@@ -88,7 +88,7 @@ export const updateChannel = async (id, updates) => {
 export const deleteChannel = async (id) => {
   try {
     const { error } = await supabase
-      .from('channels')
+      .from('feedschannels')
       .delete()
       .eq('id', id);
     

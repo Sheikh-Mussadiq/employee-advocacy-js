@@ -3,9 +3,9 @@ import { supabase } from '../lib/supabase';
 export const getWorkspaceByAccountId = async (accountId) => {
   try {
     const { data, error } = await supabase
-      .from('workspace_with_access')
+      .from('workspace')
       .select('*')
-      // .eq('account_id', accountId)
+      .eq('account_id', accountId)
       .single();
 
     if (error) {
@@ -105,5 +105,43 @@ export const uploadWorkspaceImage = async (file, accountId) => {
   } catch (error) {
     console.error('Exception uploading workspace image:', error);
     return { error: error.message, url: null };
+  }
+}
+
+
+export const getWorkspaceAccessCode = async (workspaceId) => {
+  try {
+    const { data, error } = await supabase
+      .from('workspaceinfo')
+      .select('access_code')
+      .eq('id', workspaceId)
+      .single();
+
+    if (error) {
+      return { error: error, accessCode: null };
+    }
+
+    return { error: null, accessCode: data.access_code };
+  } catch (error) {
+    console.error('Exception fetching workspace access code:', error);
+    return { error: error.message, accessCode: null };
+  }
+}
+
+export const updateWorkspaceAccessCode = async (workspaceId, accessCode) => {
+  try {
+    const { error } = await supabase
+      .from('workspaceinfo')
+      .update({ access_code: accessCode })
+      .eq('id', workspaceId);
+
+    if (error) {
+      return { error };
+    }
+
+    return { error: null };
+  } catch (error) {
+    console.error('Exception updating workspace access code:', error);
+    return { error: error.message };
   }
 }

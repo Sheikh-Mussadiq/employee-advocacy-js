@@ -32,7 +32,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { data, error } = await supabase.from('workspace').select('id, name, description, img_path').eq('access_code', access_code).single();
+    const { data, error } = await supabase.from('workspaceinfo').select('id, name, description, img_path').eq('access_code', access_code).single();
     if (error) {
       let errorMessage;
       if (error.code === 'PGRST116') {

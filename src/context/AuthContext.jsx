@@ -9,7 +9,7 @@ import React, {
 import { supabase } from "../lib/supabase";
 import { toast } from "react-hot-toast";
 const AuthContext = createContext(null);
-import { getWorkspaceByAccountId } from "../services/workspaceServices";
+import { getWorkspaceByAccountId, getWorkspaceAccessCode } from "../services/workspaceServices";
 import { getChannelsByWorkspaceId } from "../services/newsFeedsChannelServices";
 import { getUserByProviderId, upsertUser, getFormattedUserData } from "../services/userServices";
 
@@ -152,6 +152,12 @@ export function AuthProvider({ children }) {
       if (!ws && error?.code === "PGRST116") {
         setWorkSpaceNotCreated(true);
       } else {
+        // Fetch workspace access code
+        const { accessCode, error: accessCodeError } = await getWorkspaceAccessCode(ws.id);
+        if (!accessCodeError) {
+          ws.access_code = accessCode;
+        }
+
         setWorkSpace(ws);
         // now you know `user` and `ws` exist
         const { data: dbUser, error: userError } = await supabase
@@ -162,11 +168,22 @@ export function AuthProvider({ children }) {
       
         if (!userError) {
           if (!dbUser.workspace_id || dbUser.workspace_id !== ws.id) {
-            const { error: updateError } = await supabase
-              .from("users")
-              .update({ workspace_id: ws.id })
-              .eq("id", user.id);
-            if (updateError) console.error("Error updating:", updateError);
+            try {
+              const { data, error } = await supabase.functions.invoke('update-user-workspace', {
+                body: {
+                  userId: user.id,
+                  workspaceId: ws.id,
+                },
+              });
+        
+              if (error) {
+                console.error("❌ Error updating user's workspace:", error);
+              } else {
+                console.log("✅ User workspace updated:", data);
+              }
+            } catch (err) {
+              console.error("❌ Failed to invoke Edge Function:", err);
+            }
           }
         } else {
           setWorkSpaceNotCreated(true);
@@ -241,6 +258,12 @@ export function AuthProvider({ children }) {
       if (!ws && error?.code === "PGRST116") {
         setWorkSpaceNotCreated(true);
       } else {
+        // Fetch workspace access code
+        const { accessCode, error: accessCodeError } = await getWorkspaceAccessCode(ws.id);
+        if (!accessCodeError) {
+          ws.access_code = accessCode;
+        }
+
         setWorkSpace(ws);
         // now you know `user` and `ws` exist
         const { data: dbUser, error: userError } = await supabase
@@ -251,11 +274,22 @@ export function AuthProvider({ children }) {
       
         if (!userError) {
           if (!dbUser.workspace_id || dbUser.workspace_id !== ws.id) {
-            const { error: updateError } = await supabase
-              .from("users")
-              .update({ workspace_id: ws.id })
-              .eq("id", user.id);
-            if (updateError) console.error("Error updating:", updateError);
+            try {
+              const { data, error } = await supabase.functions.invoke('update-user-workspace', {
+                body: {
+                  userId: user.id,
+                  workspaceId: ws.id,
+                },
+              });
+        
+              if (error) {
+                console.error("❌ Error updating user's workspace:", error);
+              } else {
+                console.log("✅ User workspace updated:", data);
+              }
+            } catch (err) {
+              console.error("❌ Failed to invoke Edge Function:", err);
+            }
           }
         } else {
           setWorkSpaceNotCreated(true);
@@ -296,21 +330,17 @@ export function AuthProvider({ children }) {
             if (accessCode) {
               // Fetch workspace details using edge function
               try {
-                const response = await fetch(
-                  `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-workspaceInfo-accesscode`,
+                const { data: workspaceData, error } = await supabase.functions.invoke(
+                  'get-workspaceInfo-accesscode',
                   {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-                    },
-                    body: JSON.stringify({ access_code: accessCode })
+                    body: { access_code: accessCode }
                   }
                 );
                 
-                if (response.ok) {
-                  const workspaceData = await response.json();
-                  workspaceId = workspaceData.id; 
+                if (!error && workspaceData) {
+                  workspaceId = workspaceData.id;
+                } else {
+                  console.error("Error from Edge Function:", error);
                 }
               } catch (error) {
                 console.error("Error fetching workspace from access code:", error);

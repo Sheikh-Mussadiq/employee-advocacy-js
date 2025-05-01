@@ -43,7 +43,7 @@ import AccessTokenGenerator from "../components/advocacySettings/AccessTokenGene
 
 export default function AdvocacySettings() {
   const { currentUser } = useAuth()
-  if (currentUser?.role !== "Admin") {
+  if (currentUser?.role !== "ADMIN") {
     return <Navigate to="/settings" replace />
   }
 

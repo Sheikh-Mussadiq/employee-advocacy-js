@@ -206,7 +206,7 @@ export default function CreateFeedsChannelModal({
       const feedNames = feedRows.map((row) => row.feedName);
 
       const { data: channelData } = await supabase
-        .from("channels")
+        .from("feedschannels")
         .insert([
           {
             name: channelName,
@@ -215,8 +215,6 @@ export default function CreateFeedsChannelModal({
               ...data,
               feedNames,
             },
-            type: data.type,
-            feed_ids: data?.feed_ids ? data.feed_ids : data.id,
           },
         ])
         .select()

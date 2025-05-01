@@ -42,7 +42,7 @@ function AppContent() {
   }
 
   // New workspace redirect logic
-  if (isAuthenticated && currentUser?.role === "Admin" && workSpaceNotCreated) {
+  if (isAuthenticated && currentUser?.role === "ADMIN" && workSpaceNotCreated) {
     return <WorkspaceConfig />;
   }
 
