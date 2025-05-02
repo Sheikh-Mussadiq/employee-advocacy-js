@@ -10,7 +10,7 @@ const supabaseClient = createClient(
 let supabase;
 
 // Check the environment and choose the appropriate client
-if (import.meta.env.VITE_ENVIORNMENT === "development") {
+// if (import.meta.env.VITE_ENVIORNMENT === "development") {
   console.log("Using normal Supabase client");
   supabase = createClient(
     SUPABASE_CONFIG.url,
@@ -22,7 +22,7 @@ if (import.meta.env.VITE_ENVIORNMENT === "development") {
       }
     }
   );
-}
+// }
 //  else {
 //   console.log("Using proxied Supabase client");
 //   supabase = createSupabaseProxy(supabaseClient);

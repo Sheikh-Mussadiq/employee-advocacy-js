@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import News from "./pages/News";
 import Leaderboard from "./pages/Leaderboard";
@@ -65,18 +66,41 @@ function AppContent() {
 }
 
 const ProtectedLoginRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, processLinkedInToken } = useAuth();
   const isDevelopment = import.meta.env.VITE_ENVIORNMENT === "development";
+  const location = useLocation();
+  const [processingToken, setProcessingToken] = useState(false);
 
-  if (isLoading) {
+  // Check if we have an access_token in the URL hash (from LinkedIn redirect)
+  const hashParams = new URLSearchParams(location.hash.replace('#', ''));
+  const accessToken = hashParams.get('access_token');
+
+  useEffect(() => {
+    const handleToken = async () => {
+      if (accessToken && !isAuthenticated && !processingToken) {
+        setProcessingToken(true);
+        await processLinkedInToken(accessToken);
+      }
+    };
+
+    handleToken();
+  }, [accessToken, isAuthenticated, processLinkedInToken]);
+
+  if (isLoading || processingToken) {
     return <LoadingScreen />;
   }
 
+  // If user is authenticated, redirect to news
   if (isAuthenticated) {
     return <Navigate to="/news" replace />;
   }
 
-  return isDevelopment ? <LoginPage /> : <Login />;
+  // If we have an access token but not authenticated yet, show loading
+  if (accessToken) {
+    return <LoadingScreen />;
+  }
+
+  return isDevelopment ? <Login /> : <Login />;
 };
 
 export default function App() {

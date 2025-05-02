@@ -25,26 +25,21 @@ export const getUserByProviderId = async (providerUserId) => {
 /**
  * Create or update user data in Supabase
  */
-export const upsertUser = async (userData, workspaceId) => {
-  const { email, firstName, lastName, avatarUrl, providerUserId } = userData;
+export const updateUser = async (userData) => {
+  const { email, firstName, lastName, avatarUrl, userId } = userData;
   
   return await supabase
     .from("users")
-    .upsert(
+    .update(
       {
         email,
         first_name: firstName,
         last_name: lastName, 
         avatar_url: avatarUrl,
-        provider_user_id: providerUserId,
-        workspace_id: workspaceId,
-      
-      },
-      { 
-        onConflict: "provider_user_id", 
-        returning: "representation" 
       }
-    );
+    )
+    .eq("id", userId)
+    .single();
 };
 
 /**

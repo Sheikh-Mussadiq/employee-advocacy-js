@@ -19,6 +19,25 @@ export const getWorkspaceByAccountId = async (accountId) => {
   }
 }
 
+export const getWorkspaceById = async (workspaceId) => {
+  try {
+    const { data, error } = await supabase
+      .from('workspace')
+      .select('*')
+      .eq('id', workspaceId)
+      .single();
+
+    if (error) {
+      return { error: error, workspace: null };
+    }
+
+    return { error: null, workspace: data };
+  } catch (error) {
+    console.error('Exception fetching workspace:', error);
+    return { error: error.message, workspace: null };
+  }
+}
+
 export const createWorkspace = async (workspaceData) => {
   try {
     const { data, error } = await supabase

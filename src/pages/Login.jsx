@@ -17,16 +17,45 @@ export default function Login() {
   const [hasAccessCode, setHasAccessCode] = useState(false);
 
   useEffect(() => {
+    // First check query params for access_code
     const queryParams = new URLSearchParams(location.search);
     const accessCode = queryParams.get('access_code');
+
+    // Then check hash fragment for access_token
+    const hashParams = new URLSearchParams(location.hash.replace('#', ''));
+    const accessToken = hashParams.get('access_token');
     
-    if (accessCode) {
+    if (accessToken) {
+      handleAccessToken(accessToken);
+    } else if (accessCode) {
       setHasAccessCode(true);
       fetchWorkspaceInfo(accessCode);
     } else {
       setHasAccessCode(false);
     }
   }, [location]);
+
+  const handleAccessToken = async (token) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: token,
+        refresh_token: null,
+      });
+
+      if (error) throw error;
+
+      // Remove the hash fragment from the URL
+      window.location.hash = '';
+      // Redirect to news page after successful session creation
+      window.location.href = '/news';
+    } catch (err) {
+      setError(err.message);
+      console.error('Error setting session:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchWorkspaceInfo = async (accessCode) => {
     setLoading(true);
@@ -54,7 +83,7 @@ export default function Login() {
       if (!data || Object.keys(data).length === 0) {
         throw new Error('No workspace found with this access code');
       }
-      
+      localStorage.setItem('workspaceId', data.id);
       setWorkspaceInfo(data);
     } catch (err) {
       setError(err.message);
@@ -69,20 +98,8 @@ export default function Login() {
       // Prepare query params to include workspace ID after successful login
       let redirectTo = `${window.location.origin}/news`;
       
-      // If we have the workspace info, include it in the redirect
-      if (workspaceInfo?.id) {
-        redirectTo = `${redirectTo}?workspace_id=${workspaceInfo.id}`;
-        if (location.search) {
-          // Preserve the access_code in the redirect
-          redirectTo = `${redirectTo}&${location.search.substring(1)}`;
-        }
-      } else if (location.search) {
-        // Just preserve the current query string (with access_code)
-        redirectTo = `${redirectTo}${location.search}`;
-      }
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "linkedin",
+        provider: "linkedin_oidc",
         options: {
           redirectTo,
         },

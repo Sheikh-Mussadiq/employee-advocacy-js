@@ -9,9 +9,9 @@ import React, {
 import { supabase } from "../lib/supabase";
 import { toast } from "react-hot-toast";
 const AuthContext = createContext(null);
-import { getWorkspaceByAccountId, getWorkspaceAccessCode } from "../services/workspaceServices";
+import { getWorkspaceByAccountId, getWorkspaceAccessCode, getWorkspaceById } from "../services/workspaceServices";
 import { getChannelsByWorkspaceId } from "../services/newsFeedsChannelServices";
-import { getUserByProviderId, upsertUser, getFormattedUserData } from "../services/userServices";
+import { getUserByEmail, updateUser } from "../services/userServices";
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,31 +43,23 @@ export function AuthProvider({ children }) {
       let lastName = user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || "";
       const avatarUrl = user.user_metadata?.avatar_url || "";
       const email = user.email;
-      const providerUserId = user.id;
       
-      // Check if user exists in our database
-      const { data: existingUser, error: userError } = await getUserByProviderId(providerUserId);
       
       // Insert or update user data
-      const { data: upsertedUser, error: upsertError } = await upsertUser(
+      const { data: updatedUser, error: updateError } = await updateUser(
         {
           email,
           firstName,
           lastName,
           avatarUrl,
-          providerUserId
-        },
-        workspaceId
+          userId: user.id,
+        }
       );
       
-      if (upsertError) throw upsertError;
-      
-      // Get formatted user data
-      const { userData, error: formattedError } = await getFormattedUserData(providerUserId);
-      if (formattedError) throw formattedError;
-      
+      if (updateError) throw updateError;
+    
       // Set the user in context
-      setCurrentUser(userData);
+      setCurrentUser(updatedUser);
       
       // Fetch workspace data if we have workspaceId
       if (workspaceId) {
@@ -89,6 +81,73 @@ export function AuthProvider({ children }) {
       console.error("LinkedIn auth error:", error);
       return { success: false, error };
     } 
+  };
+
+  const processLinkedInToken = async (token) => {
+    try {
+      setIsLoading(true);
+      
+      // Set the session with the token from the URL
+      const { data, error } = await supabase.auth.setSession({
+        access_token: token,
+        refresh_token: null,
+      });
+
+      if (error) throw error;
+
+      // Get authenticated user
+      const { data: { user }, error: getUserError } = await supabase.auth.getUser();
+      
+      if (getUserError || !user) {
+        throw new Error("Failed to get authenticated user");
+      }
+      
+      setAuthUser(user);
+      
+      // Extract LinkedIn profile data
+      let firstName = user.user_metadata?.full_name?.split(' ')[0] || "";
+      let lastName = user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || "";
+      const avatarUrl = user.user_metadata?.avatar_url || "";
+      const email = user.email;
+      
+      // Get workspace ID from localStorage (set during login)
+      const workspaceId = localStorage.getItem("workspaceId");
+      
+      // Insert or update user data
+      const { data: updatedUser, error: updateError } = await updateUser({
+        email,
+        firstName,
+        lastName,
+        avatarUrl,
+        userId: user.id,
+      });
+      
+      if (updateError) throw updateError;
+    
+      setCurrentUser(updatedUser);
+      
+      // Fetch workspace data if we have workspaceId
+      if (workspaceId) {
+        const { error, workspace: ws } = await getWorkspaceById(workspaceId);
+        if (!ws && error?.code === "PGRST116") {
+         return;
+        } else {
+          setWorkSpace(ws);
+          const channels = await getChannelsByWorkspaceId(ws.id);
+          if (channels) {
+            setFeedsChannels(channels);
+          }
+        }
+      }
+      
+      setIsAuthenticated(true);
+      return true;
+    } catch (error) {
+      console.error("LinkedIn token processing error:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getDataAndToken = async () => {
@@ -309,74 +368,120 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    
     const initAuth = async () => {
       try {
         setIsLoading(true);
         
-        // First, check if we have a session from LinkedIn login
-        const { data: authData } = await supabase.auth.getSession();
+        // Check for access_token in hash (for LinkedIn redirect)
+        const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+        const accessToken = hashParams.get('access_token');
         
-        if (authData?.session) {
-          // We have a session, check if it's from LinkedIn
-          const user = authData.session.user;
-          
-          if (user) {
-            // Get workspace ID from URL if available
-            const queryParams = new URLSearchParams(window.location.search);
-            const accessCode = queryParams.get('access_code');
-            let workspaceId = null;
-            
-            if (accessCode) {
-              // Fetch workspace details using edge function
-              try {
-                const { data: workspaceData, error } = await supabase.functions.invoke(
-                  'get-workspaceInfo-accesscode',
-                  {
-                    body: { access_code: accessCode }
-                  }
-                );
-                
-                if (!error && workspaceData) {
-                  workspaceId = workspaceData.id;
-                } else {
-                  console.error("Error from Edge Function:", error);
-                }
-              } catch (error) {
-                console.error("Error fetching workspace from access code:", error);
-              }
-            }
-            
-            // Try LinkedIn auth
-            const linkedInAuthResult = await handleLinkedInAuth(workspaceId);
-            
-            if (linkedInAuthResult.success) {
-              return; // Successfully authenticated with LinkedIn
-            }
-          }
-        }
-        
-        // If LinkedIn auth failed or no session, fall back to regular auth methods
-        if (import.meta.env.VITE_ENVIORNMENT === "development") {
-          console.log("from development");
-          try {
-            await getDataAndToken();
-          } catch (error) {
-            console.error("Development auth failed:", error);
-            // No need to set isLoading here, as getDataAndToken already sets it
+        if (accessToken) {
+          // Process the token directly during initialization
+          await processLinkedInToken(accessToken);
+          // Clear the hash to remove the token from URL
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
           }
         } else {
-          console.log("from production");
-          try {
-            await getToken();
-          } catch (error) {
-            console.error("Production auth failed:", error);
-            setIsLoading(false);
+          // Continue with existing session check
+          const { data: authData } = await supabase.auth.getSession();
+          
+          if (authData?.session) {
+            const user = authData.session.user;
+            
+            if (user) {
+              setAuthUser(user);
+
+              // Get workspace ID from localStorage (set during login)
+              const workspaceId = localStorage.getItem("workspaceId");
+              
+              // Check if user exists in our users table
+              const { data: userData, error: userError } = await getUserByEmail(user.email);
+              
+              if (userError && userError.code !== 'PGRST116') {
+                console.error("Error fetching user data:", userError);
+                setIsLoading(false);
+                return;
+              }
+
+              if (!userData) {
+                // User doesn't exist in our table, create them using Edge Function
+                try {
+                  const { data: newUser, error: createError } = await supabase.functions.invoke('create-user-with-workspace', {
+                    body: {
+                    userId: user.id,
+                      email: user.email,
+                      firstName: user.user_metadata?.name?.split(' ')[0] || "",
+                      lastName: user.user_metadata?.name?.split(' ').slice(1).join(' ') || "",
+                      avatarUrl: user.user_metadata?.picture || "",
+                      workspaceId: workspaceId
+                    },
+                  });
+
+                  if (createError) throw createError;
+                  
+                  setCurrentUser(newUser);
+                  
+                  // Fetch workspace info
+                  if (workspaceId) {
+                    const { error, workspace: ws } = await getWorkspaceById(workspaceId);
+                    if (!ws && error) {
+                     return;
+                    } else {
+                      setWorkSpace(ws);
+                      const channels = await getChannelsByWorkspaceId(ws.id);
+                      if (channels) {
+                        setFeedsChannels(channels);
+                      }
+                    }
+                  }
+                  
+                } catch (err) {
+                  console.error("Failed to create user:", err);
+                  setIsLoading(false);
+                  return;
+                }
+              } else {
+                // User exists, set the current user
+                setCurrentUser(userData);
+                
+                // If user has workspace_id, fetch workspace info
+                if (userData.workspace_id) {
+                  const { error, workspace: ws } = await getWorkspaceById(userData.workspace_id);
+                  if (!ws && error?.code === "PGRST116") {
+                    return;
+                  } else {
+                    setWorkSpace(ws);
+                    const channels = await getChannelsByWorkspaceId(ws.id);
+                    if (channels) {
+                      setFeedsChannels(channels);
+                    }
+                  }
+                }
+              }
+              
+              setIsAuthenticated(true);
+            }
+          } else {
+            // No session, proceed with regular auth methods
+            if (import.meta.env.VITE_ENVIORNMENT === "development") {
+              try {
+                await getDataAndToken();
+              } catch (error) {
+                console.error("Development auth failed:", error);
+              }
+            } else {
+              try {
+                await getToken();
+              } catch (error) {
+                console.error("Production auth failed:", error);
+              }
+            }
           }
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
-        setIsLoading(false);
       } finally {
         setIsLoading(false);
       }
@@ -441,6 +546,7 @@ export function AuthProvider({ children }) {
         setWorkSpace,
         feedsChannels,
         setFeedsChannels,
+        processLinkedInToken,
       }}
     >
       {children}
