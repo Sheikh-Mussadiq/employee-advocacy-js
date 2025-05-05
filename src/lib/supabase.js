@@ -18,7 +18,8 @@ let supabase;
     {
       auth: {
         persistSession: true,
-        autoRefreshToken: true
+        autoRefreshToken: true,
+        storage: window.localStorage
       }
     }
   );
