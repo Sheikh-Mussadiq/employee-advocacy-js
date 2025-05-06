@@ -15,7 +15,16 @@ export default function News() {
   const [error, setError] = useState(null);
   const [channelName, setChannelName] = useState("News Feed");
 
+  // Use a ref to track if we've already loaded the feed for this channelId
+  const [loadedChannelIds, setLoadedChannelIds] = useState(new Set());
+  
   useEffect(() => {
+    // Skip if we've already loaded this channelId and it's not null
+    // This prevents double loading when feedsChannels updates
+    if (channelId && loadedChannelIds.has(channelId)) {
+      return;
+    }
+    
     async function fetchChannelFeed() {
       setIsLoading(true);
       setError(null);
@@ -56,6 +65,11 @@ export default function News() {
             // Extract the feed URL from the channel data structure
             const feedUrl = channel.feeds.rss_feed_url;
             fetchRSSFeed(feedUrl, setFeed, setIsLoading, setError);
+            
+            // Mark this channelId as loaded
+            if (channelId) {
+              setLoadedChannelIds(prev => new Set([...prev, channelId]));
+            }
           } catch (err) {
             console.error("Error extracting feed URL:", err);
             setError(`Unable to load feed for ${channel.name}. Please try again later.`);
@@ -74,7 +88,14 @@ export default function News() {
     }
     
     fetchChannelFeed();
-  }, [channelId, feedsChannels]);
+  }, [channelId, feedsChannels, loadedChannelIds]);
+  
+  // Reset loaded channels when navigating to a different channel
+  useEffect(() => {
+    return () => {
+      setLoadedChannelIds(new Set());
+    };
+  }, []);
 
   return (
     <motion.div

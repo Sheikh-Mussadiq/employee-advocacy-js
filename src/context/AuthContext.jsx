@@ -399,69 +399,67 @@ export function AuthProvider({ children }) {
               setAuthUser(user);
               // Get workspace ID from localStorage (set during login)
               const workspaceId = localStorage.getItem("workspaceId");
+              
+              if (!workspaceId) {
+                console.error("No workspace ID found in localStorage");
+                setIsLoading(false);
+                return;
+              }
 
-              // Check if user exists in our users table
-              const { data: userData, error: userError } = await getUserByEmail(
-                user.email
-              );
+              // Check if user exists in the users table and has workspace_id
+              const { data: userData, error: userError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+              
+              if (userError && userError.code !== "PGRST116") {
+                console.error("Error fetching user data:", userError);
+                setIsLoading(false);
+                return;
+              }
 
-              // if (userError && userError.code !== "PGRST116") {
-              //   console.error("Error fetching user data:", userError);
-              //   setIsLoading(false);
-              //   return;
-              // }
-
-              if (!userData) {
-                // User doesn't exist in our table, create them using Edge Function
+              if (!userData || !userData.workspace_id) {
+                // User doesn't exist or doesn't have workspace_id, create/update them using Edge Function
                 try {
+                  // Extract LinkedIn profile data
+                  let firstName = user.user_metadata?.full_name?.split(" ")[0] || "";
+                  let lastName = user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "";
+                  const avatarUrl = user.user_metadata?.avatar_url || "";
+                  
                   const { data: newUser, error: createError } =
                     await supabase.functions.invoke("create-user-with-workspace", {
                       body: {
                         userId: user.id,
                         email: user.email,
-                        firstName: user.user_metadata?.name?.split(" ")[0] || "",
-                        lastName:
-                          user.user_metadata?.name?.split(" ").slice(1).join(" ") ||
-                          "",
-                        avatarUrl: user.user_metadata?.picture || "",
+                        firstName: firstName,
+                        lastName: lastName,
+                        avatarUrl: avatarUrl,
                         workspaceId: workspaceId,
                       },
                     });
 
-                  if (createError) throw createError;
+                  if (createError) {
+                    console.error("Error creating/updating user:", createError);
+                    throw createError;
+                  }
 
-                  setCurrentUser(newUser);
+                  // Set the current user
+                  setCurrentUser({
+                    id: user.id,
+                    email: user.email,
+                    first_name: firstName,
+                    last_name: lastName,
+                    avatar_url: avatarUrl,
+                    workspace_id: workspaceId,
+                    role: 'EMPLOYEE'
+                  });
 
                   // Fetch workspace info
-                  if (workspaceId) {
-                    const { error, workspace: ws } = await getWorkspaceById(
-                      workspaceId
-                    );
-                    if (!ws && error) {
-                      return;
-                    } else {
-                      setWorkSpace(ws);
-                      const channels = await getChannelsByWorkspaceId(ws.id);
-                      if (channels) {
-                        setFeedsChannels(channels);
-                      }
-                    }
-                  }
-                } catch (err) {
-                  console.error("Failed to create user:", err);
-                  setIsLoading(false);
-                  return;
-                }
-              } else {
-                // User exists, set the current user
-                setCurrentUser(userData);
-
-                // If user has workspace_id, fetch workspace info
-                if (userData.workspace_id) {
-                  const { error, workspace: ws } = await getWorkspaceById(
-                    userData.workspace_id
-                  );
-                  if (!ws && error?.code === "PGRST116") {
+                  const { error, workspace: ws } = await getWorkspaceById(workspaceId);
+                  if (!ws && error) {
+                    console.error("Error fetching workspace:", error);
+                    setIsLoading(false);
                     return;
                   } else {
                     setWorkSpace(ws);
@@ -470,9 +468,33 @@ export function AuthProvider({ children }) {
                       setFeedsChannels(channels);
                     }
                   }
+                } catch (err) {
+                  console.error("Failed to create/update user:", err);
+                  setIsLoading(false);
+                  return;
+                }
+              } else {
+                // User exists with workspace_id, set the current user
+                setCurrentUser(userData);
+
+                // Fetch workspace info
+                const { error, workspace: ws } = await getWorkspaceById(userData.workspace_id);
+                if (!ws && error?.code === "PGRST116") {
+                  console.error("Workspace not found:", error);
+                  setIsLoading(false);
+                  return;
+                } else {
+                  setWorkSpace(ws);
+                  const channels = await getChannelsByWorkspaceId(ws.id);
+                  if (channels) {
+                    setFeedsChannels(channels);
+                  }
                 }
               }
+              
+              // Set authenticated state
               setIsAuthenticated(true);
+              setIsLoading(false);
             } else {
               // No session: environment-based auth fallback
               if (import.meta.env.VITE_ENVIRONMENT === "development") {
@@ -480,16 +502,113 @@ export function AuthProvider({ children }) {
               } else {
                 await getToken();
               }
+              setIsLoading(false);
             }
           }
         );
 
         // Initial session check
         if (session) {
-          // Your existing session handling logic
           const user = session.user;
           setAuthUser(user);
-          // ... rest of your session handling code ...
+          
+          // Get workspace ID from localStorage (set during login)
+          const workspaceId = localStorage.getItem("workspaceId");
+          
+          if (!workspaceId) {
+            console.error("No workspace ID found in localStorage");
+            setIsLoading(false);
+            return;
+          }
+
+          // Check if user exists in the users table and has workspace_id
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          
+          if (userError && userError.code !== "PGRST116") {
+            console.error("Error fetching user data:", userError);
+            setIsLoading(false);
+            return;
+          }
+
+          if (!userData || !userData.workspace_id) {
+            // User doesn't exist or doesn't have workspace_id, create/update them using Edge Function
+            try {
+              // Extract LinkedIn profile data
+              let firstName = user.user_metadata?.full_name?.split(" ")[0] || "";
+              let lastName = user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "";
+              const avatarUrl = user.user_metadata?.avatar_url || "";
+              
+              const { data: newUser, error: createError } =
+                await supabase.functions.invoke("create-user-with-workspace", {
+                  body: {
+                    userId: user.id,
+                    email: user.email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    avatarUrl: avatarUrl,
+                    workspaceId: workspaceId,
+                  },
+                });
+
+              if (createError) {
+                console.error("Error creating/updating user:", createError);
+                throw createError;
+              }
+
+              // Set the current user
+              setCurrentUser({
+                id: user.id,
+                email: user.email,
+                first_name: firstName,
+                last_name: lastName,
+                avatar_url: avatarUrl,
+                workspace_id: workspaceId,
+                role: 'EMPLOYEE'
+              });
+
+              // Fetch workspace info
+              const { error, workspace: ws } = await getWorkspaceById(workspaceId);
+              if (!ws && error) {
+                console.error("Error fetching workspace:", error);
+                setIsLoading(false);
+                return;
+              } else {
+                setWorkSpace(ws);
+                const channels = await getChannelsByWorkspaceId(ws.id);
+                if (channels) {
+                  setFeedsChannels(channels);
+                }
+              }
+            } catch (err) {
+              console.error("Failed to create/update user:", err);
+              setIsLoading(false);
+              return;
+            }
+          } else {
+            // User exists with workspace_id, set the current user
+            setCurrentUser(userData);
+
+            // Fetch workspace info
+            const { error, workspace: ws } = await getWorkspaceById(userData.workspace_id);
+            if (!ws && error?.code === "PGRST116") {
+              console.error("Workspace not found:", error);
+              setIsLoading(false);
+              return;
+            } else {
+              setWorkSpace(ws);
+              const channels = await getChannelsByWorkspaceId(ws.id);
+              if (channels) {
+                setFeedsChannels(channels);
+              }
+            }
+          }
+          
+          // Set authenticated state
+          setIsAuthenticated(true);
         } else {
           // Your existing no-session fallback
           if (import.meta.env.VITE_ENVIRONMENT === "development") {

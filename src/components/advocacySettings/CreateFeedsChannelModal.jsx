@@ -78,21 +78,9 @@ export default function CreateFeedsChannelModal({
   ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [platformModalOpen, setPlatformModalOpen] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const dropdownRef = useRef(null);
   const { setFeedsChannels } = useAuth();
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleAddRow = () => {
     setFeedRows([...feedRows, { feedName: "", feedUrl: "" }]);
@@ -130,7 +118,7 @@ export default function CreateFeedsChannelModal({
     }
 
     setFeedRows(newRows);
-    setDropdownOpen(null);
+    setPlatformModalOpen(null);
 
     // Clear errors
     const newErrors = { ...errors };
@@ -286,7 +274,7 @@ export default function CreateFeedsChannelModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
                   className="text-lg font-medium leading-6 text-design-black flex items-center"
@@ -303,7 +291,7 @@ export default function CreateFeedsChannelModal({
                   <X className="w-5 h-5" />
                 </button>
 
-                <form onSubmit={handleSubmit} className="mt-6 space-y-8">
+                <form onSubmit={handleSubmit} className="mt-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-3">
                       <label
@@ -340,8 +328,8 @@ export default function CreateFeedsChannelModal({
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-design-greyOutlines pb-2">
+                  <div className="space-y-4 mt-2">
+                    <div className="flex justify-between items-center border-b border-design-greyOutlines pb-2 mb-4">
                       <h4 className="text-base font-medium text-design-black">
                         Feed Sources
                       </h4>
@@ -359,8 +347,7 @@ export default function CreateFeedsChannelModal({
                     </div>
                     
                     <div className="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-4">
                       {feedRows.map((row, index) => (
                         <motion.div
                           key={index}
@@ -368,126 +355,133 @@ export default function CreateFeedsChannelModal({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
                           transition={{ duration: 0.2 }}
-                          className="md:col-span-3 p-4 border border-design-greyOutlines rounded-lg bg-design-greyBG bg-opacity-30 relative"
+                          className="p-4 border border-design-greyOutlines rounded-lg bg-design-greyBG bg-opacity-30 relative hover:shadow-md transition-shadow"
                         >
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                             <div className="md:col-span-1">
                               <label className="block text-sm font-medium text-design-primaryGrey mb-2">
                                 Platform
                               </label>
-                              <div
-                                className="relative"
-                                ref={
-                                  dropdownOpen === index ? dropdownRef : null
-                                }
-                              >
-                                <div
-                                  onClick={() =>
-                                    setDropdownOpen(
-                                      dropdownOpen === index ? null : index
-                                    )
-                                  }
-                                  className={`flex items-center w-full px-4 py-2.5 border cursor-pointer ${
-                                    errors[`feedRows.${index}.feedName`]
-                                      ? "border-semantic-error"
-                                      : "border-design-greyOutlines"
-                                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-button-primary-cta ${
-                                    row.platform
-                                      ? "bg-button-tertiary-fill bg-opacity-30"
-                                      : "bg-white"
-                                  }`}
-                                >
-                                  {row.platform ? (
-                                    <>
-                                      <span className="flex items-center gap-2 flex-1">
-                                        <row.platform.icon
-                                          style={{ color: row.platform.color }}
-                                          className="w-4 h-4"
-                                        />
-                                        <span>{row.feedName}</span>
-                                      </span>
-                                      <button
-                                        type="button"
-                                        onClick={(e) =>
-                                          handleClearPlatform(index, e)
-                                        }
-                                        className="mr-2 text-design-primaryGrey hover:text-semantic-error transition-colors"
-                                      >
-                                        <X className="w-3.5 h-3.5" />
-                                      </button>
-                                    </>
-                                  ) : (
-                                    <span className="text-design-primaryGrey flex-1">
-                                      Select a platform
+                              <div className="relative">
+                                {row.platform ? (
+                                  <div className="flex items-center w-full px-4 py-2.5 border bg-button-tertiary-fill bg-opacity-30 rounded-lg border-design-greyOutlines">
+                                    <span className="flex items-center gap-2 flex-1">
+                                      <row.platform.icon
+                                        style={{ color: row.platform.color }}
+                                        className="w-4 h-4"
+                                      />
+                                      <span>{row.feedName}</span>
                                     </span>
-                                  )}
-                                  <ChevronDown
-                                    className={`w-4 h-4 transition-transform duration-200 ${
-                                      dropdownOpen === index
-                                        ? "transform rotate-180"
-                                        : ""
-                                    }`}
-                                  />
-                                </div>
-
-                                <AnimatePresence>
-                                  {dropdownOpen === index && (
-                                    <motion.div
-                                      initial={{ opacity: 0, y: -10 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      exit={{ opacity: 0, y: -10 }}
-                                      transition={{ duration: 0.15 }}
-                                      className="absolute top-full left-0 right-0 z-50 mt-1 bg-white rounded-lg shadow-lg border border-design-greyOutlines overflow-hidden"
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleClearPlatform(index, e)}
+                                      className="mr-2 text-design-primaryGrey hover:text-semantic-error transition-colors"
                                     >
-                                      <div className="p-2 border-b border-design-greyOutlines">
-                                        <div className="relative">
-                                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-design-primaryGrey" />
-                                          <input
-                                            type="text"
-                                            placeholder="Search platforms..."
-                                            className="w-full pl-8 pr-2 py-1.5 text-sm border border-design-greyOutlines rounded-md focus:outline-none focus:ring-1 focus:ring-button-primary-cta"
-                                            value={searchTerm}
-                                            onChange={(e) =>
-                                              setSearchTerm(e.target.value)
-                                            }
-                                          />
-                                        </div>
-                                      </div>
-
-                                      <div className="max-h-48 overflow-y-auto py-1">
-                                        {filteredFeeds(searchTerm).map(
-                                          (feed, feedIndex) => (
-                                            <motion.div
-                                              key={feedIndex}
-                                              whileHover={{
-                                                backgroundColor: "#F5F3FF",
-                                              }}
-                                              className="px-3 py-2 flex items-center gap-2 cursor-pointer"
-                                              onClick={() =>
-                                                handlePlatformSelect(
-                                                  index,
-                                                  feed
-                                                )
-                                              }
-                                            >
-                                              <feed.icon
-                                                style={{ color: feed.color }}
-                                                className="w-4 h-4"
-                                              />
-                                              <span>{feed.name}</span>
-                                            </motion.div>
-                                          )
-                                        )}
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setPlatformModalOpen(index)}
+                                      className="text-button-primary-cta hover:text-button-primary-hover transition-colors ml-1"
+                                    >
+                                      <ChevronDown className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => setPlatformModalOpen(index)}
+                                    className={`flex items-center justify-between w-full px-4 py-2.5 border ${errors[`feedRows.${index}.feedName`] ? "border-semantic-error" : "border-design-greyOutlines"} rounded-lg focus:outline-none focus:ring-2 focus:ring-button-primary-cta bg-white hover:border-button-primary-cta transition-colors`}
+                                  >
+                                    <span className="text-design-primaryGrey">Select a platform</span>
+                                    <ChevronDown className="w-4 h-4 text-design-primaryGrey" />
+                                  </button>
+                                )}
 
                                 {errors[`feedRows.${index}.feedName`] && (
                                   <p className="mt-1 text-xs text-semantic-error">
                                     {errors[`feedRows.${index}.feedName`]}
                                   </p>
                                 )}
+                                
+                                {/* Platform Selection Modal */}
+                                <Transition appear show={platformModalOpen === index} as={Fragment}>
+                                  <Dialog as="div" className="relative z-50" onClose={() => setPlatformModalOpen(null)}>
+                                    <Transition.Child
+                                      as={Fragment}
+                                      enter="ease-out duration-300"
+                                      enterFrom="opacity-0"
+                                      enterTo="opacity-100"
+                                      leave="ease-in duration-200"
+                                      leaveFrom="opacity-100"
+                                      leaveTo="opacity-0"
+                                    >
+                                      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+                                    </Transition.Child>
+                                    
+                                    <div className="fixed inset-0 overflow-y-auto">
+                                      <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                        <Transition.Child
+                                          as={Fragment}
+                                          enter="ease-out duration-300"
+                                          enterFrom="opacity-0 scale-95"
+                                          enterTo="opacity-100 scale-100"
+                                          leave="ease-in duration-200"
+                                          leaveFrom="opacity-100 scale-100"
+                                          leaveTo="opacity-0 scale-95"
+                                        >
+                                          <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                            <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-design-black mb-4">
+                                              Select Platform
+                                            </Dialog.Title>
+                                            
+                                            <div className="mb-4">
+                                              <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-design-primaryGrey" />
+                                                <input
+                                                  type="text"
+                                                  placeholder="Search platforms..."
+                                                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-design-greyOutlines rounded-lg focus:outline-none focus:ring-2 focus:ring-button-primary-cta"
+                                                  value={searchTerm}
+                                                  onChange={(e) => setSearchTerm(e.target.value)}
+                                                />
+                                              </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                                              {filteredFeeds(searchTerm).map((feed, feedIndex) => (
+                                                <motion.button
+                                                  key={feedIndex}
+                                                  type="button"
+                                                  whileHover={{ scale: 1.02 }}
+                                                  whileTap={{ scale: 0.98 }}
+                                                  className="flex items-center gap-2 p-3 border border-design-greyOutlines rounded-lg hover:bg-design-lightVioletSelection transition-colors text-left"
+                                                  onClick={() => {
+                                                    handlePlatformSelect(index, feed);
+                                                    setPlatformModalOpen(null);
+                                                  }}
+                                                >
+                                                  <feed.icon style={{ color: feed.color }} className="w-5 h-5 flex-shrink-0" />
+                                                  <span className="font-medium">{feed.name}</span>
+                                                </motion.button>
+                                              ))}
+                                            </div>
+                                            
+                                            <div className="mt-6 flex justify-end">
+                                              <button
+                                                type="button"
+                                                className="px-4 py-2 text-design-primaryGrey hover:bg-design-greyBG rounded-lg transition-colors"
+                                                onClick={() => setPlatformModalOpen(null)}
+                                              >
+                                                Cancel
+                                              </button>
+                                            </div>
+                                          </Dialog.Panel>
+                                        </Transition.Child>
+                                      </div>
+                                    </div>
+                                  </Dialog>
+                                </Transition>
                               </div>
                             </div>
 
@@ -510,7 +504,7 @@ export default function CreateFeedsChannelModal({
                                     errors[`feedRows.${index}.feedUrl`]
                                       ? "border-semantic-error"
                                       : "border-design-greyOutlines"
-                                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-button-primary-cta`}
+                                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-button-primary-cta hover:border-button-primary-cta transition-colors`}
                                   placeholder={
                                     row.platform?.name === "Custom RSS"
                                       ? "Enter full RSS feed URL"
@@ -532,32 +526,32 @@ export default function CreateFeedsChannelModal({
                             <button
                               type="button"
                               onClick={() => handleRemoveRow(index)}
-                              className="absolute right-3 top-3 text-design-primaryGrey hover:text-semantic-error bg-white rounded-full p-1 shadow-sm border border-design-greyOutlines"
+                              className="absolute right-3 top-3 text-design-primaryGrey hover:text-semantic-error bg-white rounded-full p-1.5 shadow-sm border border-design-greyOutlines transition-colors"
                               disabled={isSubmitting}
+                              title="Remove this feed source"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           )}
                         </motion.div>
                       ))}
-                    </div>
-
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-5 border-t border-design-greyOutlines mt-4">
+                  <div className="flex justify-end pt-5 border-t border-design-greyOutlines mt-6">
                     <button
                       type="button"
                       onClick={onClose}
                       disabled={isSubmitting}
-                      className="mr-3 px-4 py-2 text-design-primaryGrey hover:bg-design-greyBG rounded-lg transition-colors disabled:opacity-50"
+                      className="mr-3 px-5 py-2.5 text-design-primaryGrey hover:bg-design-greyBG rounded-lg transition-colors disabled:opacity-50 font-medium"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-4 py-2 bg-button-primary-cta text-white rounded-lg hover:bg-button-primary-hover transition-colors disabled:opacity-70 flex items-center"
+                      className="px-5 py-2.5 bg-button-primary-cta text-white rounded-lg hover:bg-button-primary-hover transition-colors disabled:opacity-70 flex items-center font-medium shadow-sm"
                     >
                       {isSubmitting ? (
                         <>

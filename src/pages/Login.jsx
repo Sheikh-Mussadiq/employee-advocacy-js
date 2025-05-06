@@ -95,6 +95,12 @@ export default function Login() {
 
   const handleLoginWithLinkedIn = async () => {
     try {
+      // Make sure workspaceId is stored in localStorage before redirecting
+      // This is needed for the AuthContext to know which workspace to associate with the user
+      if (workspaceInfo && workspaceInfo.id) {
+        localStorage.setItem('workspaceId', workspaceInfo.id);
+      }
+      
       // Prepare query params to include workspace ID after successful login
       let redirectTo = `${window.location.origin}/news`;
       
