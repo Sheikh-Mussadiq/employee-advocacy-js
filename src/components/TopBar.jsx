@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, HelpCircle, Search, Menu, X } from 'lucide-react';
 import NotificationsPanel from './notifications/NotificationsPanel';
 import UserProfileSettings from './settings/UserProfileSettings';
@@ -10,6 +10,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [hasNewNotifications, setHasNewNotifications] = useState(true);
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
@@ -73,20 +74,44 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
             <Search className="w-5 h-5 text-design-primaryGrey" />
           </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="p-2 hover:bg-design-greyBG rounded-lg transition-colors relative"
-            ref={notificationsRef}
-          >
-            <Bell className="w-5 h-5 text-design-primaryGrey" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-semantic-error text-white text-xs flex items-center justify-center rounded-full">3</span>
+          <motion.div className="relative" ref={notificationsRef}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setIsNotificationsOpen(!isNotificationsOpen);
+                if (hasNewNotifications && !isNotificationsOpen) {
+                  setHasNewNotifications(false);
+                }
+              }}
+              className="p-2 hover:bg-design-greyBG rounded-lg transition-colors relative"
+            >
+              <motion.div
+                initial={false}
+                animate={hasNewNotifications ? { y: [0, -3, 0], scale: [1, 1.1, 1] } : {}}
+                transition={{ repeat: Infinity, repeatDelay: 5, duration: 0.5 }}
+              >
+                <Bell className={`w-5 h-5 ${hasNewNotifications ? 'text-design-primaryPurple' : 'text-design-primaryGrey'}`} />
+              </motion.div>
+              <AnimatePresence>
+                {hasNewNotifications && (
+                  <motion.div 
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    className="absolute -top-1 -right-1 flex items-center justify-center"
+                  >
+                    <span className="absolute w-4 h-4 rounded-full bg-semantic-error-DEFAULT animate-ping opacity-75"></span>
+                    <span className="relative w-4 h-4 bg-semantic-error-DEFAULT text-white text-xs flex items-center justify-center rounded-full font-medium">3</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
             <NotificationsPanel 
               isOpen={isNotificationsOpen}
               onClose={() => setIsNotificationsOpen(false)}
             />
-          </motion.button>
+          </motion.div>
 
           <motion.button
             whileHover={{ scale: 1.05 }}
