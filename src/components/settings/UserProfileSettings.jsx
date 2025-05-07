@@ -21,7 +21,7 @@ export default function UserProfileSettings({ onClose, isAdmin }) {
   
   // Use real user data or fallback to mock data
   const userData = {
-    name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : MOCK_USER.name,
+    name: currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : MOCK_USER.name,
     email: currentUser?.email || MOCK_USER.email,
     role: currentUser?.role || MOCK_USER.role,
     // location: currentUser?.location || MOCK_USER.location,
@@ -56,7 +56,7 @@ export default function UserProfileSettings({ onClose, isAdmin }) {
       toast.success('Signed out successfully');
       
       // Redirect to login page
-      navigate('/login');
+      navigate('/advocacy/login');
     } catch (error) {
       console.error('Error signing out:', error);
       toast.error('Failed to sign out. Please try again.');

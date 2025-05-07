@@ -27,7 +27,7 @@ export default function Sidebar({
   const [isNewsFeedsExpanded, setIsNewsFeedsExpanded] = useState(true);
   const { unreadCounts, getChannelsCount } = useNotifications();
   const totalChannelsCount = getChannelsCount();
-  const { currentUser, feedsChannels } = useAuth();
+  const { socialHubUser, feedsChannels } = useAuth();
   
 
   const channelsSubItems = [

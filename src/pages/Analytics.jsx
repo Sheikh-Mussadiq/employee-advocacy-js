@@ -113,7 +113,7 @@ export default function Analytics() {
     new Date(),
   ]);
   const [startDate, endDate] = dateRange;
-  const { authUser , currentUser, workSpace} = useAuth();
+  const { authUser , socialHubUser, workSpace} = useAuth();
 
   const kpiData = {
     labels: MOCK_DATA.slice(0, 30).map(item => item.date),

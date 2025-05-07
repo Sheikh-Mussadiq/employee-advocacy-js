@@ -19,11 +19,9 @@ import { getUserByEmail, updateUser } from "../services/userServices";
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [socialHubUser, setSocialHubUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [authUser, setAuthUser] = useState(null);
-  const [currentUserUsers, setCurrentUserUsers] = useState([]);
-  const [currentUserTeams, setCurrentUserTeams] = useState([]);
-  const [currentUserChannels, setCurrentUserChannels] = useState([]);
   const [workSpaceNotCreated, setWorkSpaceNotCreated] = useState(false);
   const [workSpace, setWorkSpace] = useState(null);
   const [feedsChannels, setFeedsChannels] = useState([]);
@@ -90,76 +88,76 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // const processLinkedInToken = async (token) => {
-  //   try {
-  //     setIsLoading(true);
+  const processLinkedInToken = async (token) => {
+    try {
+      setIsLoading(true);
 
-  //     // Set the session with the token from the URL
-  //     const { data, error } = await supabase.auth.setSession({
-  //       access_token: token,
-  //       refresh_token: null,
-  //     });
+      // Set the session with the token from the URL
+      const { data, error } = await supabase.auth.setSession({
+        access_token: token,
+        refresh_token: null,
+      });
 
-  //     if (error) throw error;
+      if (error) throw error;
 
-  //     // Get authenticated user
-  //     const {
-  //       data: { user },
-  //       error: getUserError,
-  //     } = await supabase.auth.getUser();
+      // Get authenticated user
+      const {
+        data: { user },
+        error: getUserError,
+      } = await supabase.auth.getUser();
 
-  //     if (getUserError || !user) {
-  //       throw new Error("Failed to get authenticated user");
-  //     }
+      if (getUserError || !user) {
+        throw new Error("Failed to get authenticated user");
+      }
 
-  //     setAuthUser(user);
+      setAuthUser(user);
 
-  //     // Extract LinkedIn profile data
-  //     let firstName = user.user_metadata?.full_name?.split(" ")[0] || "";
-  //     let lastName =
-  //       user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "";
-  //     const avatarUrl = user.user_metadata?.avatar_url || "";
-  //     const email = user.email;
+      // Extract LinkedIn profile data
+      let firstName = user.user_metadata?.full_name?.split(" ")[0] || "";
+      let lastName =
+        user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "";
+      const avatarUrl = user.user_metadata?.avatar_url || "";
+      const email = user.email;
 
-  //     // Get workspace ID from localStorage (set during login)
-  //     const workspaceId = localStorage.getItem("workspaceId");
+      // Get workspace ID from localStorage (set during login)
+      const workspaceId = localStorage.getItem("workspaceId");
 
-  //     // Insert or update user data
-  //     const { data: updatedUser, error: updateError } = await updateUser({
-  //       email,
-  //       firstName,
-  //       lastName,
-  //       avatarUrl,
-  //       userId: user.id,
-  //     });
+      // Insert or update user data
+      const { data: updatedUser, error: updateError } = await updateUser({
+        email,
+        firstName,
+        lastName,
+        avatarUrl,
+        userId: user.id,
+      });
 
-  //     if (updateError) throw updateError;
+      if (updateError) throw updateError;
 
-  //     setCurrentUser(updatedUser);
+      setCurrentUser(updatedUser);
 
-  //     // Fetch workspace data if we have workspaceId
-  //     if (workspaceId) {
-  //       const { error, workspace: ws } = await getWorkspaceById(workspaceId);
-  //       if (!ws && error?.code === "PGRST116") {
-  //         return;
-  //       } else {
-  //         setWorkSpace(ws);
-  //         const channels = await getChannelsByWorkspaceId(ws.id);
-  //         if (channels) {
-  //           setFeedsChannels(channels);
-  //         }
-  //       }
-  //     }
+      // Fetch workspace data if we have workspaceId
+      if (workspaceId) {
+        const { error, workspace: ws } = await getWorkspaceById(workspaceId);
+        if (!ws && error?.code === "PGRST116") {
+          return;
+        } else {
+          setWorkSpace(ws);
+          const channels = await getChannelsByWorkspaceId(ws.id);
+          if (channels) {
+            setFeedsChannels(channels);
+          }
+        }
+      }
 
-  //     setIsAuthenticated(true);
-  //     return true;
-  //   } catch (error) {
-  //     console.error("LinkedIn token processing error:", error);
-  //     return false;
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+      setIsAuthenticated(true);
+      return true;
+    } catch (error) {
+      console.error("LinkedIn token processing error:", error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getDataAndToken = async () => {
     const jwtResponse = await fetch(
@@ -197,7 +195,7 @@ export function AuthProvider({ children }) {
 
       setAuthUser(user);
 
-      setCurrentUser({
+      setSocialHubUser({
         ...apiResponse.userInfo,
         userName: `${apiResponse.userInfo.firstName.replace(
           /\s+/g,
@@ -205,16 +203,7 @@ export function AuthProvider({ children }) {
         )}_${apiResponse.userInfo.lastName.replace(/\s+/g, "")}`,
       });
 
-      setCurrentUserTeams(apiResponse.userTeams);
 
-      const updatedUsers = apiResponse.userUsers.map((user) => {
-        const firstNameClean = user.firstName.replace(/\s+/g, "");
-        const lastNameClean = user.lastName.replace(/\s+/g, "");
-        return {
-          ...user,
-          userName: `${firstNameClean}_${lastNameClean}`,
-        };
-      });
 
       const { error, workspace: ws } = await getWorkspaceByAccountId(
         apiResponse.userInfo.accountId
@@ -233,7 +222,7 @@ export function AuthProvider({ children }) {
         // now you know `user` and `ws` exist
         const { data: dbUser, error: userError } = await supabase
           .from("users")
-          .select("workspace_id")
+          .select()
           .eq("id", user.id)
           .single();
 
@@ -253,16 +242,19 @@ export function AuthProvider({ children }) {
               if (error) {
                 console.error("❌ Error updating user's workspace:", error);
               } else {
+                setCurrentUser(data);
                 console.log("✅ User workspace updated:", data);
               }
             } catch (err) {
               console.error("❌ Failed to invoke Edge Function:", err);
             }
           }
-        } else {
-          setWorkSpaceNotCreated(true);
-          console.error("Error fetching workspace_id:", userError);
-        }
+          else 
+          {
+            setCurrentUser(dbUser);
+            console.log("User already has the correct workspace_id:", dbUser.workspace_id);
+          }
+        } 
         const channels = await getChannelsByWorkspaceId(ws.id);
         if (channels) {
           setFeedsChannels(channels);
@@ -271,9 +263,9 @@ export function AuthProvider({ children }) {
         }
       }
 
-      setCurrentUserUsers(updatedUsers);
-      setCurrentUserChannels(apiResponse.userChannels);
       setIsAuthenticated(true);
+      // setIsLoading(false);
+
     } else {
       jwtResponse.status === 403
         ? console.error("Access forbidden: You do not have admin privileges.")
@@ -303,25 +295,11 @@ export function AuthProvider({ children }) {
       }
       setAuthUser(user);
 
-      setCurrentUser({
+      setSocialHubUser({
         ...apiResponse.userInfo,
         userName: `${apiResponse.userInfo.firstName}_${apiResponse.userInfo.lastName}`,
         email_preferance: emailPreferance,
       });
-
-      setCurrentUserTeams(apiResponse.userTeams);
-
-      const updatedUsers = apiResponse.userUsers.map((user) => {
-        const firstNameClean = user.firstName.replace(/\s+/g, "");
-        const lastNameClean = user.lastName.replace(/\s+/g, "");
-        return {
-          ...user,
-          userName: `${firstNameClean}_${lastNameClean}`,
-        };
-      });
-
-      setCurrentUserUsers(updatedUsers);
-      setCurrentUserChannels(apiResponse.userChannels);
 
       const { error, workspace: ws } = await getWorkspaceByAccountId(
         apiResponse.userInfo.accountId
@@ -340,7 +318,7 @@ export function AuthProvider({ children }) {
         // now you know `user` and `ws` exist
         const { data: dbUser, error: userError } = await supabase
           .from("users")
-          .select("workspace_id")
+          .select()
           .eq("id", user.id)
           .single();
 
@@ -360,11 +338,17 @@ export function AuthProvider({ children }) {
               if (error) {
                 console.error("❌ Error updating user's workspace:", error);
               } else {
+                setCurrentUser(data);
                 console.log("✅ User workspace updated:", data);
               }
             } catch (err) {
               console.error("❌ Failed to invoke Edge Function:", err);
             }
+          }
+          else 
+          {
+            setCurrentUser(dbUser);
+            console.log("User already has the correct workspace_id:", dbUser.workspace_id);
           }
         } else {
           setWorkSpaceNotCreated(true);
@@ -377,7 +361,9 @@ export function AuthProvider({ children }) {
           console.error("Error fetching channels for workspace:", error);
         }
       }
+
       setIsAuthenticated(true);
+      setIsLoading(false);
     } catch (error) {
       toast.error(error.message || "An error occurred while fetching data");
     }
@@ -387,6 +373,17 @@ export function AuthProvider({ children }) {
     const initAuth = async () => {
       setIsLoading(true);
       try {
+          // No session: environment-based auth fallback
+          if (import.meta.env.VITE_ENVIORNMENT === "development") {
+            await getDataAndToken();
+            setIsLoading(false);
+
+          } else {
+            await getToken();
+            setIsLoading(false);
+
+          }
+        
         // Get current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
@@ -495,14 +492,6 @@ export function AuthProvider({ children }) {
               // Set authenticated state
               setIsAuthenticated(true);
               setIsLoading(false);
-            } else {
-              // No session: environment-based auth fallback
-              if (import.meta.env.VITE_ENVIRONMENT === "development") {
-                await getDataAndToken();
-              } else {
-                await getToken();
-              }
-              setIsLoading(false);
             }
           }
         );
@@ -513,14 +502,6 @@ export function AuthProvider({ children }) {
           setAuthUser(user);
           
           // Get workspace ID from localStorage (set during login)
-          const workspaceId = localStorage.getItem("workspaceId");
-          
-          if (!workspaceId) {
-            console.error("No workspace ID found in localStorage");
-            setIsLoading(false);
-            return;
-          }
-
           // Check if user exists in the users table and has workspace_id
           const { data: userData, error: userError } = await supabase
             .from('users')
@@ -537,6 +518,13 @@ export function AuthProvider({ children }) {
           if (!userData || !userData.workspace_id) {
             // User doesn't exist or doesn't have workspace_id, create/update them using Edge Function
             try {
+              const workspaceId = localStorage.getItem("workspaceId");
+          
+          if (!workspaceId) {
+            console.error("No workspace ID found in localStorage");
+            setIsLoading(false);
+            return;
+          }
               // Extract LinkedIn profile data
               let firstName = user.user_metadata?.full_name?.split(" ")[0] || "";
               let lastName = user.user_metadata?.full_name?.split(" ").slice(1).join(" ") || "";
@@ -609,13 +597,13 @@ export function AuthProvider({ children }) {
           
           // Set authenticated state
           setIsAuthenticated(true);
-        } else {
-          // Your existing no-session fallback
-          if (import.meta.env.VITE_ENVIRONMENT === "development") {
-            await getDataAndToken();
-          } else {
-            await getToken();
-          }
+        // } else {
+        //   // Your existing no-session fallback
+        //   if (import.meta.env.VITE_ENVIORNMENT === "development") {
+        //     await getDataAndToken();
+        //   } else {
+        //     await getToken();
+        //   }
         }
 
         return () => {
@@ -675,13 +663,12 @@ export function AuthProvider({ children }) {
       value={{
         isAuthenticated,
         setIsAuthenticated,
+        socialHubUser,
         currentUser,
+        setCurrentUser,
         login,
         isLoading,
         authUser,
-        currentUserUsers,
-        currentUserTeams,
-        currentUserChannels,
         workSpaceNotCreated,
         setWorkSpaceNotCreated,
         workSpace,

@@ -44,48 +44,48 @@ export async function fetchSocialHubDataAndCallBackend() {
   console.log('userInfoData : ', userInfoData);
 
   // --- b) Team Info ---
-  const teamInfoRes = await fetch(
-    `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/teams?accesstoken=${maloonAccessToken}`,
-    {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Accept': 'application/json' }
-    }
-  );
+  // const teamInfoRes = await fetch(
+  //   `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/teams?accesstoken=${maloonAccessToken}`,
+  //   {
+  //     method: 'GET',
+  //     credentials: 'include',
+  //     headers: { 'Accept': 'application/json' }
+  //   }
+  // );
 
-  if (!teamInfoRes.ok) {
-    throw new Error("Failed to fetch team info from SocialHub");
-  }
-  const teamInfoData = await teamInfoRes.json();
+  // if (!teamInfoRes.ok) {
+  //   throw new Error("Failed to fetch team info from SocialHub");
+  // }
+  // const teamInfoData = await teamInfoRes.json();
 
   // --- c) User Users Info ---
-  const userUsersInfoRes = await fetch(
-    `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/users?accesstoken=${maloonAccessToken}`,
-    {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Accept': 'application/json' }
-    }
-  );
-  if (!userUsersInfoRes.ok) {
-    throw new Error("Failed to fetch user-users info from SocialHub");
-  }
-  const userUsersInfoData = await userUsersInfoRes.json();
+  // const userUsersInfoRes = await fetch(
+  //   `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/users?accesstoken=${maloonAccessToken}`,
+  //   {
+  //     method: 'GET',
+  //     credentials: 'include',
+  //     headers: { 'Accept': 'application/json' }
+  //   }
+  // );
+  // if (!userUsersInfoRes.ok) {
+  //   throw new Error("Failed to fetch user-users info from SocialHub");
+  // }
+  // const userUsersInfoData = await userUsersInfoRes.json();
 
   // --- d) User Channels Info ---
-  const userChannelsInfoRes = await fetch(
-    `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/channels?accesstoken=${maloonAccessToken}`,
-    {
-      method: 'GET',
-      credentials: 'include',
-      headers: { 'Accept': 'application/json' }
-    }
-  );
-  if (!userChannelsInfoRes.ok) {
-    throw new Error("Failed to fetch user-channels info from SocialHub");
-  }
+  // const userChannelsInfoRes = await fetch(
+  //   `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/channels?accesstoken=${maloonAccessToken}`,
+  //   {
+  //     method: 'GET',
+  //     credentials: 'include',
+  //     headers: { 'Accept': 'application/json' }
+  //   }
+  // );
+  // if (!userChannelsInfoRes.ok) {
+  //   throw new Error("Failed to fetch user-channels info from SocialHub");
+  // }
 
-  const userChannelsInfoData = await userChannelsInfoRes.json();
+  // const userChannelsInfoData = await userChannelsInfoRes.json();
 
   // 3) After you have all 3 sets of data from SocialHub,
   //    send them to your backend route that now only deals with Supabase logic.
@@ -109,8 +109,8 @@ export async function fetchSocialHubDataAndCallBackend() {
 
   return {
     userInfo: userInfoData,
-    userTeams: teamInfoData,
-    userUsers: userUsersInfoData,
-    userChannels: userChannelsInfoData.data
+    // userTeams: teamInfoData,
+    // userUsers: userUsersInfoData,
+    // userChannels: userChannelsInfoData.data
   };
 }

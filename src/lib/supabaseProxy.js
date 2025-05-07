@@ -42,7 +42,7 @@
 //       // If we get a 401, try to refresh the token
 //       if (response.status === 401) {
 //         try {
-//           // const { authUser, currentUser, currentUserTeams } = useAuth();
+//           // const { authUser, socialHubUser, currentUserTeams } = useAuth();
 
 //           // const refreshResponse = await originalFetch( // maybe use fetch instead of originalFetch
 //           //   `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/auth/refresh?accesstoken=${maloonAccessToken}`,
@@ -54,8 +54,8 @@
 //           //     },
 //           //     body: JSON.stringify({
 //           //       authUserId: authUser?.id,
-//           //       userId: currentUser?.userId,
-//           //       accountId: currentUser?.accountId,
+//           //       userId: socialHubUser?.userId,
+//           //       accountId: socialHubUser?.accountId,
 //           //       teamIds: currentUserTeams.map(team => team.id)
 //           //     })
 //           //   }
@@ -207,7 +207,7 @@ const createProxyFetch = (originalFetch, supabaseClient) => {
           const refreshResponse = await fetchSocialHubDataAndCallBackend();
           const token = refreshResponse.userInfo.sbToken;
 
-            // const { authUser, currentUser, currentUserTeams } = useAuth();
+            // const { authUser, socialHubUser, currentUserTeams } = useAuth();
             
             // const refreshResponse = await originalFetch( // maybe use fetch instead of originalFetch
             //   `${import.meta.env.VITE_SOCIALHUB_API_URL}/api2/auth/refresh?accesstoken=${maloonAccessToken}`,
@@ -219,8 +219,8 @@ const createProxyFetch = (originalFetch, supabaseClient) => {
             //     },
             //     body: JSON.stringify({
             //       authUserId: authUser?.id,
-            //       userId: currentUser?.userId,
-            //       accountId: currentUser?.accountId,
+            //       userId: socialHubUser?.userId,
+            //       accountId: socialHubUser?.accountId,
             //       teamIds: currentUserTeams.map(team => team.id)
             //     })
             //   }

@@ -7,8 +7,8 @@
 // import LeaderboardAnnouncementsSettings from '../components/advocacySettings/LeaderboardAnnouncementsSettings';
 
 // export default function AdvocacySettings() {
-//   const { currentUser } = useAuth();
-//   if (currentUser?.role !== 'Admin') {
+//   const { socialHubUser } = useAuth();
+//   if (socialHubUser?.role !== 'Admin') {
 //     return <Navigate to="/settings" replace />;
 //   }
 
@@ -42,8 +42,8 @@ import LeaderboardAnnouncementsSettings from "../components/advocacySettings/Lea
 import AccessTokenGenerator from "../components/advocacySettings/AccessTokenGenerator"
 
 export default function AdvocacySettings() {
-  const { currentUser } = useAuth()
-  if (currentUser?.role !== "ADMIN") {
+  const { socialHubUser } = useAuth()
+  if (socialHubUser?.role !== "ADMIN") {
     return <Navigate to="/settings" replace />
   }
 

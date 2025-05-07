@@ -29,7 +29,7 @@ function WorkspaceConfig() {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const {
-    currentUser,
+    socialHubUser,
     authUser,
     setWorkSpaceNotCreated,
     workSpace,
@@ -135,7 +135,7 @@ function WorkspaceConfig() {
       // 1. Upload the image using the user ID
       const { error: uploadError, url } = await uploadWorkspaceImage(
         imageFile,
-        currentUser.accountId
+        socialHubUser.accountId
       );
 
       if (uploadError)
@@ -145,7 +145,7 @@ function WorkspaceConfig() {
       const { error: workspaceError, workspace } = await createWorkspace({
         name: workspaceName,
         description: workspaceDescription,
-        account_id: currentUser.accountId,
+        account_id: socialHubUser.accountId,
         created_by: authUser.id,
         img_path: url, // Include the logo URL directly
       });

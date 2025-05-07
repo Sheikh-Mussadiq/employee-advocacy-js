@@ -14,8 +14,8 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
-  const isAdmin = currentUser?.role === 'ADMIN';
+  const { socialHubUser } = useAuth();
+  const isAdmin = socialHubUser?.role === 'ADMIN';
 
   useEffect(() => {
     const handleClickOutside = (event) => {
