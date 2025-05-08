@@ -100,8 +100,8 @@ const ProtectedLoginRoute = () => {
     return <LoadingScreen />;
   }
 
-  // return isDevelopment ? <Login /> : <Login />;
-  return isDevelopment ? <LoginPage /> : <Login />;
+  return isDevelopment ? <Login /> : <Login />;
+  // return isDevelopment ? <LoginPage /> : <Login />;
 
 };
 

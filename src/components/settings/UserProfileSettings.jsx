@@ -25,7 +25,7 @@ export default function UserProfileSettings({ onClose, isAdmin }) {
     email: currentUser?.email || MOCK_USER.email,
     role: currentUser?.role || MOCK_USER.role,
     // location: currentUser?.location || MOCK_USER.location,
-    avatar: currentUser?.avatarUrl || MOCK_USER.avatar
+    avatar: currentUser?.avatar_url || MOCK_USER.avatar
   };
 
   const handleNavigate = (path) => {

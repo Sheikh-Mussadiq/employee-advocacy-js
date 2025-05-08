@@ -14,7 +14,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
-  const { socialHubUser } = useAuth();
+  const { socialHubUser, currentUser } = useAuth();
   const isAdmin = socialHubUser?.role === 'ADMIN';
 
   useEffect(() => {
@@ -128,11 +128,11 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
             ref={profileRef}
           >
             <img
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+              src={currentUser?.avatar_url || 'https://via.placeholder.com/150'}
               alt="User"
               className="w-8 h-8 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
             />
-            <span className="hidden sm:inline text-sm font-medium text-design-black">John Doe</span>
+            <span className="hidden sm:inline text-sm font-medium text-design-black">{currentUser.first_name}</span>
             {isProfileOpen && <UserProfileSettings onClose={() => setIsProfileOpen(false)} isAdmin={isAdmin} />}
           </motion.button>
         </div>
