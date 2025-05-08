@@ -204,7 +204,7 @@ export default function Login() {
               )}
             </>
           ) : (
-            <div className="py-6">
+            <div className="py-6 flex flex-col items-center justify-center space-y-8">
               <div className="mx-auto flex items-center justify-center">
                 <motion.div
                   initial={{ scale: 0 }}
@@ -215,10 +215,27 @@ export default function Login() {
                   <img src={SocialHubLogo} alt="Logo" className="h-full w-full object-cover" />
                 </motion.div>
               </div>
-              <h2 className="mt-4 text-center text-xl font-bold text-white">Access Code Required</h2>
-              <div className="mt-4 text-center text-sm text-white/80 space-y-2">
-                <p>We couldn't find an access code in the link.</p>
-                <p>Please reach out to your workspace administrator to obtain a valid link with the required access code.</p>
+              <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group relative w-full flex justify-center py-3 px-4 border border-white/20 text-sm font-medium rounded-lg text-white bg-[#0A66C2]/90 hover:bg-[#004182] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0A66C2] transition-all duration-150"
+                    onClick={handleLoginWithLinkedIn}
+                  >
+                    <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                      <svg
+                        className="h-5 w-5 text-[#0A66C2] group-hover:text-[#004182]"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M16 8c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4 4 1.8 4 4zM4 8c0 2.2 1.8 4 4 4s4-1.8 4-4-1.8-4-4-4-4 1.8-4 4zm12 8v-1.5c0-1.4-1.1-2.5-2.5-2.5h-7c-1.4 0-2.5 1.1-2.5 2.5v1.5h12z" />
+                      </svg>
+                    </span>
+                    Continue with LinkedIn
+                  </motion.button>
+              {/* <h2 className="mt-4 text-center text-xl font-bold text-white">Access Code Required</h2> */}
+              <div className="mt-4 text-center text-sm text-white/80 space-y-2 -mx-4">
+                <p>If you haven't <strong> signed up</strong> for a workspace with <strong> Access Code </strong> before. Please reach out to your workspace administrator to obtain a valid link with the required access code.</p>
+                
                 <p>Once you receive it, use that link to signin to your workspace.</p>
               </div>
             </div>

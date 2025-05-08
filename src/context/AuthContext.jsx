@@ -801,7 +801,9 @@ export function AuthProvider({ children }) {
                   setFeedsChannels(channels);
                 }
               }
-              setIsAuthenticated(true);
+              localStorage.removeItem("workspaceId");
+              setWorkSpaceNotCreated(false);
+              // setIsAuthenticated(true);
             } catch (err) {
               console.error("Failed to create user:", err);
               setIsLoading(false);
