@@ -923,6 +923,22 @@ export function AuthProvider({ children }) {
     try {
       const apiResponse = await fetchSocialHubDataAndCallBackend();
       
+            const token = apiResponse.userInfo.sbToken;
+      await supabase.auth.setSession({
+        access_token: token,
+        refresh_token: token,
+      });
+
+      // Set Supabase authenticated user from API response.
+      const {
+        data: { user },
+        error: getUserError,
+      } = await supabase.auth.getUser();
+      if (getUserError) {
+        console.error("getUser error:", getUserError);
+        return;
+      }
+
       if (apiResponse.userInfo) {
         setSocialHubUser({
           ...apiResponse.userInfo,
@@ -940,7 +956,7 @@ export function AuthProvider({ children }) {
 
           setWorkSpace(ws);
 
-          const { data: user } = await supabase.auth.getUser();
+          
           if (user) {
             setAuthUser(user);
             const { data: dbUser } = await supabase
