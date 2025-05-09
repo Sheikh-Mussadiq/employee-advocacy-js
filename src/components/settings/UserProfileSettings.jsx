@@ -43,8 +43,9 @@ export default function UserProfileSettings({ onClose, isAdmin }) {
       
       if (error) throw error;
       
-      // Clear any stored user data
+      // Clear any stored user data and cookies
       localStorage.removeItem('workspaceId');
+      document.cookie = 'accesstoken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       
       // Reset auth context
       setIsAuthenticated(false);

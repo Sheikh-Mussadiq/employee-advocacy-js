@@ -75,8 +75,9 @@ export default function AccessTokenGenerator() {
       toast.error("Generate a token first")
       return
     }
-    
-    navigator.clipboard.writeText(accessToken)
+
+    // navigator.clipboard.writeText(`http://localhost:5173/advocacy/login?access_code=${accessToken}`)
+    navigator.clipboard.writeText(`https://app.socialhub.io/prototype/advocacy/advocacy/login?access_code=${accessToken}`)
       .then(() => toast.success("Token copied to clipboard"))
       .catch(() => toast.error("Failed to copy token"))
   }

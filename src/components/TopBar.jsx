@@ -74,7 +74,7 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
             <Search className="w-5 h-5 text-design-primaryGrey" />
           </motion.button>
 
-          <motion.div className="relative" ref={notificationsRef}>
+          {/* <motion.div className="relative" ref={notificationsRef}>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -106,12 +106,12 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.button>
-            <NotificationsPanel 
+            </motion.button> */}
+            {/* <NotificationsPanel 
               isOpen={isNotificationsOpen}
               onClose={() => setIsNotificationsOpen(false)}
             />
-          </motion.div>
+          </motion.div> */}
 
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -128,11 +128,11 @@ export default function TopBar({ isMenuOpen, onMenuToggle }) {
             ref={profileRef}
           >
             <img
-              src={currentUser?.avatar_url || 'https://via.placeholder.com/150'}
+              src={currentUser?.avatar_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e'}
               alt="User"
               className="w-8 h-8 rounded-full object-cover ring-2 ring-design-greyOutlines ring-offset-2"
             />
-            <span className="hidden sm:inline text-sm font-medium text-design-black">{currentUser.first_name}</span>
+            <span className="hidden sm:inline text-sm font-medium text-design-black">{currentUser?.first_name}</span>
             {isProfileOpen && <UserProfileSettings onClose={() => setIsProfileOpen(false)} isAdmin={isAdmin} />}
           </motion.button>
         </div>
